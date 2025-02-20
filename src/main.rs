@@ -3,7 +3,7 @@
 
 pub mod common;
 pub mod rocket_routes;
-
+mod schema;
 
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error>{
