@@ -14,10 +14,10 @@ CREATE TABLE weather(
 */
 
 use diesel::prelude::Queryable;
+use serde::{Serialize, Deserialize};
 
-
-#[derive(Queryable)]
-struct Weather{
+#[derive(Queryable, Deserialize)]
+pub struct Weather{
     id: i32,  
     city_name: String,
     temperature: f32,
