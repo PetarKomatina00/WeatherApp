@@ -1,5 +1,6 @@
 use std::env;
 
+use common::POSTGRES_URL;
 use diesel::{Connection, PgConnection};
 use rocket_sync_db_pools::database;
 
@@ -19,7 +20,8 @@ pub struct DbConnection(PgConnection);
 
 
 pub fn establish_connection() -> PgConnection{
-    let database_url = env::var(common::POSTGRES_URL).expect("Database url must be set");
+    dotenv::dotenv().ok();
+    let database_url = env::var(POSTGRES_URL).expect("Database url must be set");
     PgConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("error connection to {}", database_url))
 }
@@ -32,7 +34,6 @@ async fn main() -> Result<(), rocket::Error>{
     let _ = rocket::build()
         .mount("/", routes![
             rocket_routes::weather_route::get_weather_api
-            
             ])
         .attach(DbConnection::fairing())
         .launch()
