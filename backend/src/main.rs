@@ -1,6 +1,5 @@
 use std::env;
 
-use common::POSTGRES_URL;
 use diesel::{Connection, PgConnection};
 use rocket_sync_db_pools::database;
 
@@ -11,6 +10,7 @@ pub mod common;
 pub mod rocket_routes;
 pub mod repositories;
 pub mod models;
+pub mod tests;
 mod schema;
  
 
@@ -21,7 +21,7 @@ pub struct DbConnection(PgConnection);
 
 pub fn establish_connection() -> PgConnection{
     dotenv::dotenv().ok();
-    let database_url = env::var(POSTGRES_URL).expect("Database url must be set");
+    let database_url = env::var("POSTGRES_URL").expect("Database url must be set");
     PgConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("error connection to {}", database_url))
 }
