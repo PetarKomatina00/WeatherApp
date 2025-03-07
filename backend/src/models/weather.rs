@@ -34,7 +34,7 @@ use serde::{Serialize, Deserialize};
      */
 
 
-#[derive(Queryable, Deserialize, Serialize, Debug, Default)]
+#[derive(Queryable, Deserialize, Serialize, Debug, PartialEq)]
 pub struct WeatherData{
     id: i32,  
     pub name: String,
@@ -45,7 +45,7 @@ pub struct WeatherData{
     pub cod: i32
 }
 
-#[derive(Queryable, Deserialize, Serialize, Debug, Default)]
+#[derive(Queryable, Deserialize, Serialize, Debug, Default, PartialEq)]
 pub struct Main{
     pub humidity: i32,
     pub temp: f32,
@@ -54,7 +54,7 @@ pub struct Main{
     pub temp_max: f32,
 }
 
-#[derive(Deserialize, Serialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Default, PartialEq)]
 pub struct Sys{
     pub sunrise: i64,
     pub sunset: i64,
@@ -64,4 +64,18 @@ pub struct Sys{
 pub struct Coords{
     pub lon: f32,
     pub lat: f32
+}
+
+impl Default for WeatherData{
+    fn default() -> Self {
+        WeatherData {
+            id: 0,
+            name: String::from("TestCity"),
+            main: Main::default(),
+            sys: Sys::default(),
+            timezone: 123,
+            coord: Coords::default(),
+            cod: 200
+        }
+    }
 }
