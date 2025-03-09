@@ -1,11 +1,11 @@
 use std::fmt::format;
 
+use redis::{aio::MultiplexedConnection, AsyncCommands, RedisResult};
 use reqwest::blocking::Client;
 use reqwest::StatusCode;
 use serde_json::Value;
 use super::models::{Coords};
-use crate::{models::weather::WeatherData, tests::models::TestWeatherData};
-
+use crate::{models::weather::{self, WeatherData}, redis_utility::utility::utility, tests::models::TestWeatherData};
 
 pub fn create_expected_weather_data() -> TestWeatherData{
     let dummy_weather_data = TestWeatherData{
@@ -23,6 +23,7 @@ pub fn create_expected_weather_data() -> TestWeatherData{
 #[async_test]
 async fn test_get_weather_api(){
 
+    //todo!("Write a mock function")
     let city = String::from("Barcelona");
     let client = reqwest::Client::new();
 
@@ -36,3 +37,5 @@ async fn test_get_weather_api(){
 
     assert_eq!(response_body, expected_weather_data);
 }
+
+

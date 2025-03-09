@@ -14,6 +14,7 @@ impl WeatherRepository{
         let weather_data: WeatherData;
         if let Some(weather_data) = utility::get_cached_weather_data(&city).await{
             println!("Data from redis cache: {:?}", weather_data);
+            return Ok(String::from("Data from cache is stored!"));
             todo!("Data is fetched from redis...Procceed");
         }
         else{
@@ -21,7 +22,7 @@ impl WeatherRepository{
             weather_data = Self::fetch_data_weather_api(&city).await.unwrap();
         
             println!("Storing data in redis...");
-            utility::store_data_in_redis(weather_data).await;
+            utility::store_data_in_redis(&weather_data).await;
             
         }
 
