@@ -1,10 +1,7 @@
 use std::env;
-use diesel::PgConnection;
-use redis::{AsyncCommands, Commands, Connection, RedisResult};
-use redis::aio::MultiplexedConnection;
 
 use crate::models::weather::WeatherData;
-use crate::redis_utility::utility::utility;
+use crate::redis_utility::utility::Utility;
 pub struct WeatherRepository;
 
 impl WeatherRepository{
@@ -12,17 +9,17 @@ impl WeatherRepository{
         // 1. Attempt to fetch data from Redis.
 
         let weather_data: WeatherData;
-        if let Some(weather_data) = utility::get_cached_weather_data(&city).await{
+        if let Some(weather_data) = Utility::get_cached_weather_data(&city).await{
             println!("Data from redis cache: {:?}", weather_data);
             return Ok(String::from("Data from cache is stored!"));
-            todo!("Data is fetched from redis...Procceed");
+            //todo!("Data is fetched from redis...Procceed");
         }
         else{
             println!("Fetching data...");
             weather_data = Self::fetch_data_weather_api(&city).await.unwrap();
         
             println!("Storing data in redis...");
-            utility::store_data_in_redis(&weather_data).await;
+            Utility::store_data_in_redis(&weather_data).await;
             
         }
 

@@ -1,19 +1,31 @@
-use std::fmt::format;
+use std::env;
 
-use diesel::dsl::delete;
-use redis::{aio::MultiplexedConnection, AsyncCommands, FromRedisValue, RedisError, RedisResult};
-
+use deadpool_redis::{Config, Pool, Runtime};
+use lazy_static::lazy_static;
+use redis::{aio::MultiplexedConnection, AsyncCommands};
 use crate::models::weather::WeatherData;
+pub struct Utility;
 
-pub struct utility;
+lazy_static! {
+    pub static ref REDIS_POOL: Pool = {
+        dotenv::dotenv().ok();
+        let redis_url = env::var("REDIS_URL").expect("Cannot get redis url");
+        let cfg: Config = Config::from_url(redis_url);
+        let pool_con = cfg.create_pool(Some(Runtime::Tokio1)).expect("Failed to create Redis Pool");
 
-impl utility{
+        pool_con
+    };
+}
+
+impl Utility{
     pub async fn get_cached_weather_data(key: &str) -> Option<WeatherData>{
 
-        let client_redis = redis::Client::open("redis://backend-redis-1:6379/").unwrap();
-        let mut con: MultiplexedConnection = client_redis.get_multiplexed_async_connection().await.expect("RedisUtility: Error");
+        //let mut redis_conn = redis_test::REDIS_POOL.get().await.expect("Failed to get redis connection");
+        //let client_redis = redis::Client::open(REDIS_POOL).unwrap();
 
-        println!("Get cached weather data called");
+        let mut con = REDIS_POOL.get().await.expect("Failed to get redis pool");
+        //let mut con: MultiplexedConnection = client_redis.get_multiplexed_async_connection().await.expect("RedisUtility: Error");
+
         let cached_json: Option<String> = con.get(key).await.unwrap();
         
         println!("{:?}", cached_json);
@@ -30,6 +42,8 @@ impl utility{
 
     pub async fn store_data_in_redis(weather_data: &WeatherData){
         println!("Storing data in redis started...");
+
+        //let mut redis_conn = redis_test::REDIS_POOL.get().await.expect("Failed to get redis connection");
         let client_redis = redis::Client::open("redis://backend-redis-1:6379/").unwrap();
         let mut con: MultiplexedConnection = client_redis.get_multiplexed_async_connection().await.expect("RedisUtility: Error connection to redis");
     
@@ -46,9 +60,11 @@ impl utility{
         }
     }
     pub async fn delete_data_in_redis(key: &str) -> Result<(), String>{
+
+        let mut con = REDIS_POOL.get().await.expect("Failed to get redis connection");
         println!("Deleting data in redis started...");
-        let client_redis = redis::Client::open("redis://backend-redis-1:6379/").unwrap();
-        let mut con: MultiplexedConnection = client_redis.get_multiplexed_async_connection().await.expect("RedisUtility: Error connection to redis");
+        //let client_redis = redis::Client::open("redis://backend-redis-1:6379/").unwrap();
+        //let mut con: MultiplexedConnection = client_redis.get_multiplexed_async_connection().await.expect("RedisUtility: Error connection to redis");
 
         //todo!("Call function get_del. Need to implement FromRedisValue trait")
         let deleted_item: String = con.del(key).await.unwrap();
@@ -60,6 +76,13 @@ impl utility{
         else{
             Err(String::from("Error"))
         }
+    }
+    pub fn make_connection_pool_redis() -> Pool{
+        let cfg: Config = Config::from_url(env::var("REDIS_URL").unwrap());
+        let pool = cfg.create_pool(Some(Runtime::Tokio1)).unwrap();
+        
+        pool
+    
     }
     
 }

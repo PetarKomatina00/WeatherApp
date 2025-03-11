@@ -1,12 +1,9 @@
-use std::fmt::format;
 
-use redis::{aio::MultiplexedConnection, AsyncCommands, RedisResult};
-use reqwest::blocking::Client;
+use super::models::Coords;
+use crate::tests::models::TestWeatherData;
+
+#[allow(unused_imports)]
 use reqwest::StatusCode;
-use serde_json::Value;
-use super::models::{Coords};
-use crate::{models::weather::{self, WeatherData}, redis_utility::utility::utility, tests::models::TestWeatherData};
-
 pub fn create_expected_weather_data() -> TestWeatherData{
     let dummy_weather_data = TestWeatherData{
         name : String::from("Barcelona"),
