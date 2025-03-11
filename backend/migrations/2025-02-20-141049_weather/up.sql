@@ -1,4 +1,6 @@
 -- Your SQL goes here
+
+
 CREATE TABLE weather(
     id SERIAL PRIMARY KEY,
     city_name TEXT NOT NULL,

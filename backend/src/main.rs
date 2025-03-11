@@ -1,7 +1,6 @@
 use std::env;
 
 use diesel::{Connection, PgConnection};
-use repositories::weather_repository::WeatherRepository;
 use rocket_sync_db_pools::database;
 
 #[macro_use] extern crate rocket;
@@ -34,7 +33,7 @@ async fn main() -> Result<(), rocket::Error>{
     // let weatherapi: &str = common::OPENWEATHER_API_KEY;
     // println!("Hello, world! {:?}", weatherapi);
     println!("Hello from main");
-    let city_name = String::from("Barcelona");
+    let _city_name = String::from("Barcelona");
 
     let _ = rocket::build()
         .mount("/", routes![
