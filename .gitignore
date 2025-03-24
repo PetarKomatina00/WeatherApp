@@ -1,0 +1,27 @@
+# Ignore Rust build output
+/target/
+
+# Ignore Trunk build output (if using Trunk)
+#/dist/          # Uncomment if you build to a dist/ directory
+/.trunk-cache/
+
+# Ignore Wasm-pack output (if using wasm-pack)
+/pkg/
+
+# Ignore generated WebAssembly and JavaScript artifacts (if built outside of pkg/)
+*.wasm
+*.js
+
+# Ignore Node modules if you have any (e.g., for bundling or tooling)
+/node_modules/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+
+# Log files
+*.log
