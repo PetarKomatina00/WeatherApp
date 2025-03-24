@@ -13,8 +13,12 @@ pub mod repositories;
 pub mod models;
 pub mod tests;
 mod schema;
+pub mod config;
  
-
+// #[options("/<_..>")]
+// fn all_options() -> rocket::http::Status {
+//     rocket::http::Status::Ok
+// }
 
 #[database("postgres")]
 pub struct DbConnection(PgConnection);
@@ -34,11 +38,12 @@ async fn main() -> Result<(), rocket::Error>{
     // println!("Hello, world! {:?}", weatherapi);
     println!("Hello from main");
     let _city_name = String::from("Barcelona");
-
+    let cors: rocket_cors::Cors = config::cors::cors().expect("Cannot create CORS");
     let _ = rocket::build()
         .mount("/", routes![
             rocket_routes::weather_route::get_weather_api
             ])
+        .attach(cors)
         .attach(DbConnection::fairing())
         .launch()
         .await?;
