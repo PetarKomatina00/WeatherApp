@@ -5,13 +5,13 @@ use crate::redis_utility::utility::Utility;
 pub struct WeatherRepository;
 
 impl WeatherRepository{
-    pub async fn get_city_weather_by_name(city: &String) -> Result<String, String>{
+    pub async fn get_city_weather_by_name(city: &String) -> Result<WeatherData, String>{
         // 1. Attempt to fetch data from Redis.
 
-        let weather_data: WeatherData;
+        let mut weather_data: WeatherData = WeatherData::default();
         if let Some(weather_data) = Utility::get_cached_weather_data(&city).await{
             println!("Data from redis cache: {:?}", weather_data);
-            return Ok(String::from("Data from cache is stored!"));
+            //return Ok(String::from("Data from cache is stored!"));
             //todo!("Data is fetched from redis...Procceed");
         }
         else{
@@ -20,13 +20,15 @@ impl WeatherRepository{
         
             println!("Storing data in redis...");
             Utility::store_data_in_redis(&weather_data).await;
+
+            
             
         }
 
         // 4. Return the data (Ok) or error (Err).
         
         //Ok(weather_data)
-        Ok(String::from("Good!"))
+        Ok(weather_data)
     }
 
     async fn fetch_data_weather_api(city: &str) -> Result<WeatherData, String>{
