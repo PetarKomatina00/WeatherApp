@@ -1,13 +1,13 @@
 FROM rust:latest
 
-WORKDIR /app/
+WORKDIR /app/backend
 
-COPY . .
+COPY backend/ . 
 
 RUN rustup default
 
-RUN cargo install diesel_cli --no-default-features --features postgres
+RUN cargo install diesel_cli --no-default-features --feature postgres
 
-RUN cargo install cargo-watch 
+EXPOSE 8000
 
-CMD ["cargo", "watch", "--why", "--", "echo"]
+CMD ["cargo", "run"]

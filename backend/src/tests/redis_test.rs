@@ -1,5 +1,6 @@
 #[allow(unused_imports)]
-use crate::{models::weather::WeatherData, redis_utility::utility::{Utility, REDIS_POOL}};
+use crate::{/*models::weather::WeatherData, */redis_utility::utility::{Utility, REDIS_POOL}};
+use shared::WeatherData;
 
 #[async_test]
 pub async fn test_redis_store_data(){
@@ -61,8 +62,6 @@ pub async fn test_redis_get_cached_weather_data(){
     .await
     .expect("Failed to delete test data from redis");
 }
-
-//todo!("Make a connection pool")
 
 #[async_test]
 pub async fn test_redis_delete_data(){

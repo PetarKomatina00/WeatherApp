@@ -44,7 +44,7 @@ async fn main() -> Result<(), rocket::Error>{
             rocket_routes::weather_route::get_weather_api
             ])
         .attach(cors)
-        .attach(DbConnection::fairing())
+        // .attach(DbConnection::fairing())
         .launch()
         .await?;
 
