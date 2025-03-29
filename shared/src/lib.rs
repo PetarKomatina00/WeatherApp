@@ -32,10 +32,9 @@ use serde::{Serialize, Deserialize};
         "cod":200
      */
 
-
 #[derive(Deserialize, Serialize, Debug, PartialEq)]
 pub struct WeatherData{
-    id: i32,  
+    pub id: i32,  
     pub name: String,
     pub main: Main,
     pub sys: Sys,

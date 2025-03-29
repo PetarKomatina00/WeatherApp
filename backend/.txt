@@ -1,0 +1,19 @@
+TO DO
+1. Promeni Diesel kako pamti podatke u bazi podataka.
+Razlikuje se models/WeatherData i up.sql
+
+
+/*
+    ALTER TABLE weather RENAME COLUMN city_name TO name;
+    ALTER TABLE weather RENAME COLUMN temperature TO temp;
+
+    -- Add new columns for the additional fields in Main
+    ALTER TABLE weather ADD COLUMN feels_like REAL NOT NULL DEFAULT 0;
+    ALTER TABLE weather ADD COLUMN temp_min REAL NOT NULL DEFAULT 0;
+    ALTER TABLE weather ADD COLUMN temp_max REAL NOT NULL DEFAULT 0;
+
+    -- Remove columns not used in the new struct
+    ALTER TABLE weather DROP COLUMN description;
+    ALTER TABLE weather DROP COLUMN wind_speed;
+
+*/

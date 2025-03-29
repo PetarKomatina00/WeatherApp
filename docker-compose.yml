@@ -10,7 +10,6 @@ services:
     image: redis:latest
     ports:
       - 6379:6379
-      - 8001:8001
   app:
     build: .
     environment:
@@ -18,5 +17,11 @@ services:
       - ROCKET_DATABASES={postgres={url=postgres://postgresuser:postgrespassword@postgres/weatherappdb}}
     ports:
       - 8000:8000
+      - 8001:8001
     volumes:
-      - ./:/app
+      - ./target:/app/target
+      - ./shared:/app/shared
+    env_file: 
+      - ./backend/.env
+volumes:
+  target:
