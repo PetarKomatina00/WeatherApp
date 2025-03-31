@@ -1,6 +1,8 @@
 use std::env;
 
-use crate::models::weather::WeatherData;
+// use crate::models::weather::WeatherData;
+
+use shared::WeatherData;
 use crate::redis_utility::utility::Utility;
 pub struct WeatherRepository;
 
@@ -41,12 +43,9 @@ impl WeatherRepository{
             "http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units=metric",
             city, api_key
         );
-<<<<<<< Updated upstream
-=======
         println!("Hello!");
         println!("Hello Again");
         println!("API KEY is: {}", api_key);
->>>>>>> Stashed changes
         let response = reqwest::get(&url).await.expect("WeatherRepository: Failed to get response from GET Request").text().await.expect("WeatherRepository: Failed to convert to text");
         let weather_data: WeatherData = serde_json::from_str(&response).expect("WeatherRepository: Failed to deserialize response");
 

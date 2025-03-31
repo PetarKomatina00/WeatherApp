@@ -99,6 +99,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ace50bade8e6234aa140d9a2f552bbee1db4d353f69b8217bc503490fc1a9f26"
 
 [[package]]
+name = "backend"
+version = "0.1.0"
+dependencies = [
+ "deadpool-redis",
+ "diesel",
+ "dotenv",
+ "lazy_static",
+ "redis",
+ "reqwest",
+ "rocket",
+ "rocket_cors",
+ "rocket_sync_db_pools",
+ "serde",
+ "serde_json",
+ "shared",
+]
+
+[[package]]
 name = "backtrace"
 version = "0.3.74"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3140,23 +3158,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1a05d73b933a847d6cccdda8f838a22ff101ad9bf93e33684f39c1f5f0eece3d"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "weatherapp"
-version = "0.1.0"
-dependencies = [
- "deadpool-redis",
- "diesel",
- "dotenv",
- "lazy_static",
- "redis",
- "reqwest",
- "rocket",
- "rocket_cors",
- "rocket_sync_db_pools",
- "serde",
- "serde_json",
 ]
 
 [[package]]

@@ -1,8 +1,7 @@
 [package]
-name = "weatherapp"
+name = "backend"
 version = "0.1.0"
 edition = "2021"
-
 
 [dependencies]
 rocket = { version = "0.5.1", features = ["json"] }
@@ -16,4 +15,5 @@ redis = { version = "0.29.1", features = ["tokio-comp"] }
 deadpool-redis = "0.20.0"
 lazy_static = "1.5.0"
 rocket_cors = "0.6.0"
+shared = { path = "../shared"}
 

@@ -1,5 +1,6 @@
-#[allow(unused_imports)]
-use crate::{models::weather::WeatherData, redis_utility::utility::{Utility, REDIS_POOL}};
+
+use crate::redis_utility::utility::{Utility, REDIS_POOL};
+use shared::WeatherData;
 
 #[async_test]
 pub async fn test_redis_store_data(){
