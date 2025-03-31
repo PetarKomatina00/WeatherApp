@@ -1,27 +1,33 @@
 services:
+  backend:
+    build: 
+      context: .
+      dockerfile: backend/Dockerfile 
+    volumes:
+      - ./shared:/app/shared
+      - ./backend:/app/backend
+    ports:
+      - 8000:8000
+  frontend:
+    build: 
+      context: .
+      dockerfile: frontend/Dockerfile 
+    volumes:
+      - ./shared:/app/shared 
+      - ./frontend:/app/frontend
+    ports:
+      - "8001:8001"
   postgres:
     image: postgres:latest
     environment:
-      - POSTGRES_USER=postgresuser
-      - POSTGRES_PASSWORD=postgrespassword
+      - POSTGRES_USER=postgresuser 
+      - POSTGRES_PASSWORD=postgrespassword 
       - POSTGRES_DB=weatherappdb
-    command: ["postgres", "-c", "log_statement=all"] 
+    ports:
+      - 8080:8080
   redis:
-    image: redis:latest
+    image: redis:latest 
     ports:
       - 6379:6379
-  app:
-    build: .
-    environment:
-      - DATABASE_URL=postgres://postgresuser:postgrespassword@postgres/weatherappdb
-      - ROCKET_DATABASES={postgres={url=postgres://postgresuser:postgrespassword@postgres/weatherappdb}}
-    ports:
-      - 8000:8000
-      - 8001:8001
-    volumes:
-      - ./target:/app/target
-      - ./shared:/app/shared
-    env_file: 
-      - ./backend/.env
 volumes:
-  target:
+  shared:
