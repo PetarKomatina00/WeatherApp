@@ -10,4 +10,4 @@ RUN rustup default
 
 RUN cargo install diesel_cli --no-default-features --features postgres && cargo install cargo-watch
 
-CMD ["cargo", "watch", "--why", "--", "echo"]
+CMD ["cargo", "watch", "--why", "--", "echo", "Changes detected"]
