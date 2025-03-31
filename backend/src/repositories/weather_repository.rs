@@ -34,11 +34,19 @@ impl WeatherRepository{
     async fn fetch_data_weather_api(city: &str) -> Result<WeatherData, String>{
         println!("Fetching data started...");
         dotenv::dotenv().ok();
+
+        
         let api_key = env::var("WEATHER_API_KEY").expect(" WeatherRepository: Missing OpenWeather API KEY");
         let url = format!(
             "http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units=metric",
             city, api_key
         );
+<<<<<<< Updated upstream
+=======
+        println!("Hello!");
+        println!("Hello Again");
+        println!("API KEY is: {}", api_key);
+>>>>>>> Stashed changes
         let response = reqwest::get(&url).await.expect("WeatherRepository: Failed to get response from GET Request").text().await.expect("WeatherRepository: Failed to convert to text");
         let weather_data: WeatherData = serde_json::from_str(&response).expect("WeatherRepository: Failed to deserialize response");
 

@@ -2,8 +2,9 @@ use std::env;
 
 use deadpool_redis::{Config, Pool, Runtime};
 use lazy_static::lazy_static;
-use redis::{aio::MultiplexedConnection, AsyncCommands};
-use crate::models::weather::WeatherData;
+use redis::AsyncCommands;
+//use crate::models::weather::WeatherData;
+use shared::WeatherData;
 pub struct Utility;
 
 lazy_static! {
