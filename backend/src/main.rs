@@ -37,6 +37,7 @@ async fn main() -> Result<(), rocket::Error>{
     // let weatherapi: &str = common::OPENWEATHER_API_KEY;
     // println!("Hello, world! {:?}", weatherapi);
     println!("Hello from main");
+    println!("Hello from main AGAIN");
     let _city_name = String::from("Barcelona");
     let cors: rocket_cors::Cors = config::cors::cors().expect("Cannot create CORS");
     let _ = rocket::build()
