@@ -63,8 +63,6 @@ pub async fn test_redis_get_cached_weather_data(){
     .expect("Failed to delete test data from redis");
 }
 
-//todo!("Make a connection pool")
-
 #[async_test]
 pub async fn test_redis_delete_data(){
 

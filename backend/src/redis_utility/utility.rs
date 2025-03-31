@@ -4,7 +4,6 @@ use deadpool_redis::{Config, Pool, Runtime};
 use lazy_static::lazy_static;
 use redis::{aio::MultiplexedConnection, AsyncCommands};
 //use crate::models::weather::WeatherData;
-
 use shared::WeatherData;
 pub struct Utility;
 
@@ -45,9 +44,9 @@ impl Utility{
     pub async fn store_data_in_redis(weather_data: &WeatherData){
         println!("Storing data in redis started...");
 
-        //let mut redis_conn = redis_test::REDIS_POOL.get().await.expect("Failed to get redis connection");
-        let client_redis = redis::Client::open("redis://backend-redis-1:6379/").unwrap();
-        let mut con: MultiplexedConnection = client_redis.get_multiplexed_async_connection().await.expect("RedisUtility: Error connection to redis");
+        let mut con = REDIS_POOL.get().await.expect("Failed to get redis connection");
+        // let client_redis = redis::Client::open("redis://backend-redis-1:6379/").unwrap();
+        // let mut con: MultiplexedConnection = client_redis.get_multiplexed_async_connection().await.expect("RedisUtility: Error connection to redis");
     
         let key = format!("{}", weather_data.name);
 
