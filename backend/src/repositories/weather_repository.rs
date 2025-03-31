@@ -15,6 +15,7 @@ impl WeatherRepository{
             println!("Data from redis cache: {:?}", weather_data);
             //return Ok(String::from("Data from cache is stored!"));
             //todo!("Data is fetched from redis...Procceed");
+            return Ok(weather_data);
         }
         else{
             println!("Fetching data...");
@@ -44,9 +45,8 @@ impl WeatherRepository{
             city, api_key
         );
         println!("Hello!");
-        println!("Hello Again");
-        println!("API KEY is: {}", api_key);
         let response = reqwest::get(&url).await.expect("WeatherRepository: Failed to get response from GET Request").text().await.expect("WeatherRepository: Failed to convert to text");
+        println!("WeatherDataFromRepository: {}", response);
         let weather_data: WeatherData = serde_json::from_str(&response).expect("WeatherRepository: Failed to deserialize response");
 
 

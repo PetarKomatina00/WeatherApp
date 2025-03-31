@@ -2,6 +2,9 @@
 
 use rocket::serde::json::Json;
 
+//use crate::models::weather::WeatherData;
+use shared::WeatherData;
+
 use crate::repositories::weather_repository::WeatherRepository;
 // use crate::models::weather::WeatherData;
 use shared::WeatherData;
