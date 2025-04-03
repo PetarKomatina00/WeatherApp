@@ -17,6 +17,8 @@ services:
       - ./frontend:/app/frontend
     ports:
       - "8001:8001"
+    environment:
+      - TRUNK_WATCH_USE_POLLING=true
   postgres:
     image: postgres:latest
     environment:
