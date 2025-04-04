@@ -22,6 +22,5 @@ pub async fn fetch_weather_data(data: &ButtonContent) -> Result<Response, String
         return Err(format!("Failed to fetch weather, status: {}", response.status()));
     }
 
-    log!("Super");
     Ok(response)
 }
