@@ -2,12 +2,20 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>Yew App</title>
-    <link rel="modulepreload" href="/frontend-b3f215583a5cd572.js" crossorigin="anonymous" integrity="sha384-26RadnIwWTiaYBg/ey1maRku5PkHHf1hWqYh1AwuPYrDfmmBKZlvcOBXtDkSS9Tx"><link rel="preload" href="/frontend-b3f215583a5cd572_bg.wasm" crossorigin="anonymous" integrity="sha384-1nODKyQSUixL7xrTT2891SdixDzlCY6PApST2qonKu9VnwzpFLW6dU2ekXujxxaG" as="fetch" type="application/wasm"></head>
+        <title>Rust Weather App</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
+        <link rel="stylesheet" href="/style-e63b3d528f541caf.css" integrity="sha384-M30EAEtrZpDk8l1mw5fkeWzEtqaK0zem3K3hDR8M2YviwCe1jod1fiTe+TMYtDv1" type="text&#x2F;css"/>
+    <link rel="modulepreload" href="/frontend-c9b2075a58051854.js" crossorigin="anonymous" integrity="sha384-W9VCcjUzUK+WljSs19iCvjoJWpefYkQPg1uWZeEu+CSmophKNvLgclkkxMAM9ZJf"><link rel="preload" href="/frontend-c9b2075a58051854_bg.wasm" crossorigin="anonymous" integrity="sha384-kRCoYds/ukiDazTVAe2OMferUIu7aWEENWESuYKOkHIaeVcWp6GTMqz2LK5vmcLb" as="fetch" type="application/wasm"></head>
     <body>
+        <div id ="root">
+
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js" integrity="sha384-YUe2LzesAfftltw+PEaao2tjU/QATaW/rOitAq67e0CT0Zi2VVRL0oC4+gAaeBKu" crossorigin="anonymous"></script>
+        </div>
+    
 <script type="module">
-import init, * as bindings from '/frontend-b3f215583a5cd572.js';
-const wasm = await init({ module_or_path: '/frontend-b3f215583a5cd572_bg.wasm' });
+import init, * as bindings from '/frontend-c9b2075a58051854.js';
+const wasm = await init({ module_or_path: '/frontend-c9b2075a58051854_bg.wasm' });
 
 
 window.wasmBindings = bindings;

@@ -1,0 +1,38 @@
+.bg-image{
+    background-image: url('https://www.awxcdn.com/adc-assets/images/hero/2/1440x450.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 30vh;
+    width: 100%;
+    position: relative;
+}
+
+@media (min-width: 321px) {
+    .bg-image{
+        background-image: url('https://www.awxcdn.com/adc-assets/images/hero/2/375x450.jpg');
+    }
+}
+
+@media (min-width: 376px) {
+    .bg-image{
+        background-image: url('https://www.awxcdn.com/adc-assets/images/hero/2/425x450.jpg');
+    }
+}
+
+@media (min-width: 426px) {
+    .bg-image{
+        background-image: url('https://www.awxcdn.com/adc-assets/images/hero/2/768x450.jpg');
+    }
+}
+
+@media (min-width: 769px) {
+    .bg-image{
+        background-image: url('https://www.awxcdn.com/adc-assets/images/hero/2/1024x450.jpg');
+    }
+}
+@media (min-width: 1025px) {
+    .bg-image{
+        background-image: url('https://www.awxcdn.com/adc-assets/images/hero/2/1440x450.jpg');
+    }
+}
