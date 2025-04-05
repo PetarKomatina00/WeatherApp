@@ -1,2 +1,2 @@
 pub mod home;
-pub mod frontpage;
+pub mod front_image;

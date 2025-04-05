@@ -2,8 +2,7 @@ use gloo::{console::log};
 use shared::WeatherData;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
-use crate::{api::api::{fetch_weather_data, ButtonContent}, components::input_button::InputButton};
-use crate::pages::frontpage::FrontPage;
+use crate::{api::api::{fetch_weather_data, ButtonContent}, components::input_button::InputButton, pages::front_image::FrontImage};
 #[function_component(Home)]
 pub fn home() -> Html{
     let handle_submit: Callback<String> = Callback::from(|text:String| {
@@ -30,7 +29,7 @@ pub fn home() -> Html{
 
         <>
         <div>
-        <FrontPage/>
+        <FrontImage/>
             <div style="margin-top: 2rem;">
                 <InputButton data = {on_submit}/>
             </div>
