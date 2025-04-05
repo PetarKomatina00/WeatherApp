@@ -11,6 +11,7 @@ use crate::pages::home::Home;
 mod api;
 mod components;
 mod pages;
+mod assets;
 #[function_component]
 fn App() -> Html {
     // let weather_data: UseStateHandle<WeatherData> = use_state(|| WeatherData::default());
