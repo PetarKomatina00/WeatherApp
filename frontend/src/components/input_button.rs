@@ -36,21 +36,17 @@ pub fn generate_button(props: &Props) -> Html{
 
     html! {
         <>
-            <div style = "display:flex; border:1px solid #bbb">
-                <label for="cautious-input">
-                    { "Moje dugme:" }
-                    <input oninput={on_change_input_value}
-                        id="cautious-input"
-                        type="text"
-                        
-                    />
-                </label>
-            </div>
-            <div>
-                <button onclick={on_click}>
-                {"Click me"}
-                </button>
-            </div>
+        <div class = {"position-absolute top-50 start-50 translate-middle bg-white bg-opacity-75 rounded-3 shadow-lg"}>
+                    <div class="input-group">
+                        <input
+                        oninput={on_change_input_value}
+                          type="text"
+                          class="form-control"
+                          placeholder="Enter city"
+                        />
+                        <button onclick = {on_click} class="btn btn-primary" type="button">{"Search"}</button>
+                      </div>
+                </div>
         </>
     }
 }

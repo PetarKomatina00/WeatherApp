@@ -51,12 +51,7 @@ fn App() -> Html {
         
     html! {
     <>
-        {"Hello"}
-        {"ASasas"}
-        {"bbbb"}
-        {"ccccsss"}
         <Home/>
-
     </>    
     }
 }

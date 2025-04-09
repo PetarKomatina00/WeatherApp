@@ -5,10 +5,14 @@ use yew::prelude::*;
 use gloo::console::log;
 
 use wasm_bindgen::prelude::*;
-use crate::assets::utility;
+use crate::{api::api::ButtonContent, assets::utility, components::input_button::InputButton};
 
+#[derive(Properties, PartialEq)]
+pub struct Props{
+    pub data: Callback<ButtonContent>
+}
 #[function_component(FrontImage)]
-pub fn front_image() -> Html{
+pub fn front_image(props: &Props) -> Html{
 
     let chosen_image = utility::get_image_related_to_width();
     let random_number: Rc<usize> = use_memo((), |_| {
@@ -19,9 +23,8 @@ pub fn front_image() -> Html{
     html!{
         <>
             <div style = {custom_background_image} class = {classes!("bg-image")}>
-                <p >{"Petar Komatina"}</p>
+                <InputButton data = {props.data.clone()}/>
             </div>
-        
         </>
     }
 }
