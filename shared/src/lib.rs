@@ -14,6 +14,7 @@ CREATE TABLE weather(
 */
 
 use serde::{Serialize, Deserialize};
+use utoipa::ToSchema;
 
 
     /*
@@ -32,7 +33,8 @@ use serde::{Serialize, Deserialize};
         "cod":200
      */
 
-#[derive(Clone, Deserialize, Serialize, Debug, PartialEq)]
+
+#[derive(Clone, Deserialize, Serialize, Debug, PartialEq, ToSchema)]
 pub struct WeatherData{
     pub id: i32,  
     pub name: String,
@@ -43,7 +45,7 @@ pub struct WeatherData{
     pub cod: i32
 }
 
-#[derive(Clone, Copy, Deserialize, Serialize, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Deserialize, Serialize, Debug, Default, PartialEq, ToSchema)]
 pub struct Main{
     pub humidity: i32,
     pub temp: f32,
@@ -52,13 +54,13 @@ pub struct Main{
     pub temp_max: f32,
 }
 
-#[derive(Clone, Copy, Deserialize, Serialize, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Deserialize, Serialize, Debug, Default, PartialEq, ToSchema)]
 pub struct Sys{
     pub sunrise: i64,
     pub sunset: i64,
 }
 
-#[derive(Clone, Copy, Deserialize, PartialEq, Serialize, Debug, Default)]
+#[derive(Clone, Copy, Deserialize, PartialEq, Serialize, Debug, Default, ToSchema)]
 pub struct Coords{
     pub lon: f64,
     pub lat: f64

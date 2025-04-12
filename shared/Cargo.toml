@@ -9,6 +9,7 @@ path = "src/lib.rs"
 
 [dependencies]
 serde = "1.0.218"
+utoipa = "5.3.1"
 
 
 [features]

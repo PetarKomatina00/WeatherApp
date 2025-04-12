@@ -1,8 +1,11 @@
 use std::env;
 
 use diesel::{Connection, PgConnection};
+use rocket_routes::weather_route::ApiDoc;
 use rocket_sync_db_pools::database;
+use utoipa::OpenApi;
 
+use utoipa_swagger_ui::SwaggerUi;
 #[macro_use] extern crate rocket;
 
 
@@ -10,10 +13,10 @@ pub mod redis_utility;
 pub mod common;
 pub mod rocket_routes;
 pub mod repositories;
-pub mod models;
 pub mod tests;
 mod schema;
 pub mod config;
+pub mod swagger;
  
 // #[options("/<_..>")]
 // fn all_options() -> rocket::http::Status {
@@ -32,6 +35,8 @@ pub fn establish_connection() -> PgConnection{
 }
 
 
+
+
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error>{
     // let weatherapi: &str = common::OPENWEATHER_API_KEY;
@@ -44,6 +49,10 @@ async fn main() -> Result<(), rocket::Error>{
         .mount("/", routes![
             rocket_routes::weather_route::get_weather_api
             ])
+            .mount(
+                "/",
+                SwaggerUi::new("/swagger-ui/<_..>").url("/api-docs/openapi.json", ApiDoc::openapi()),
+            )
         .attach(cors)
         // .attach(DbConnection::fairing())
         .launch()
