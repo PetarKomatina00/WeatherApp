@@ -15,5 +15,8 @@ redis = { version = "0.29.1", features = ["tokio-comp"] }
 deadpool-redis = "0.20.0"
 lazy_static = "1.5.0"
 rocket_cors = "0.6.0"
+utoipa = { version = "5.3.1", features = ["rocket_extras"] }
+
 shared = { path = "../shared"}
+utoipa-swagger-ui = { version = "9.0.1", features = ["rocket", "reqwest"]}
 
