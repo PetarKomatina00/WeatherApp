@@ -1,4 +1,5 @@
 
+use components::login::LoginButton;
 use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
@@ -51,7 +52,9 @@ fn App() -> Html {
         
     html! {
     <>
+        
         <Home/>
+        
     </>    
     }
 }

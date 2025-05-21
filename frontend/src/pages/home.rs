@@ -3,6 +3,8 @@ use shared::WeatherData;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use crate::components::front_image::FrontImage;
+use crate::components::login::LoginButton;
+use crate::components::user_info::UserInfo;
 use crate::components::weather_card::WeatherCard;
 use crate::{api::api::{fetch_weather_data, ButtonContent}, components::input_button::InputButton};
 #[function_component(Home)]
@@ -38,6 +40,8 @@ pub fn home() -> Html{
 
         <>
         <div>
+            <LoginButton/>
+            <UserInfo/>
         <FrontImage data = {on_submit}/>
         if data != WeatherData::default(){
             <WeatherCard weather_data = {data}/>
