@@ -20,3 +20,6 @@ utoipa = { version = "5.3.1", features = ["rocket_extras"] }
 shared = { path = "../shared"}
 utoipa-swagger-ui = { version = "9.0.1", features = ["rocket", "reqwest"]}
 
+
+
+rocket_oauth2 = "0.5.0"

@@ -1,6 +1,8 @@
 use std::env;
 
+use auth0::auth0::Auth0;
 use diesel::{Connection, PgConnection};
+use rocket_oauth2::OAuth2;
 use rocket_routes::weather_route::ApiDoc;
 use rocket_sync_db_pools::database;
 use utoipa::OpenApi;
@@ -17,7 +19,8 @@ pub mod tests;
 mod schema;
 pub mod config;
 pub mod swagger;
- 
+pub mod auth0;
+pub mod models;
 // #[options("/<_..>")]
 // fn all_options() -> rocket::http::Status {
 //     rocket::http::Status::Ok
@@ -28,6 +31,7 @@ pub struct DbConnection(PgConnection);
 
 
 pub fn establish_connection() -> PgConnection{
+
     dotenv::dotenv().ok();
     let database_url = env::var("POSTGRES_URL").expect("Database url must be set");
     PgConnection::establish(&database_url)
@@ -43,17 +47,23 @@ async fn main() -> Result<(), rocket::Error>{
     // println!("Hello, world! {:?}", weatherapi);
     println!("Hello from main");
     println!("Hello from main AGAIN");
+    println!("Yo brooo");
     let _city_name = String::from("Barcelona");
     let cors: rocket_cors::Cors = config::cors::cors().expect("Cannot create CORS");
     let _ = rocket::build()
-        .mount("/", routes![
-            rocket_routes::weather_route::get_weather_api
-            ])
-            .mount(
-                "/",
-                SwaggerUi::new("/swagger-ui/<_..>").url("/api-docs/openapi.json", ApiDoc::openapi()),
-            )
         .attach(cors)
+        .mount("/", routes![
+            rocket_routes::weather_route::get_weather_api,
+            ])
+        .mount(
+            "/",
+            SwaggerUi::new("/swagger-ui/<_..>").url("/api-docs/openapi.json", ApiDoc::openapi()),
+        )
+        .mount("/auth0", routes![
+            auth0::auth0::login, auth0::auth0::callback, auth0::auth0::get_user_info
+        ])
+        .attach(OAuth2::<auth0::auth0::Auth0>::fairing("auth0"))
+        
         // .attach(DbConnection::fairing())
         .launch()
         .await?;
