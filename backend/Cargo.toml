@@ -8,7 +8,7 @@ rocket = { version = "0.5.1", features = ["json"] }
 diesel = {version = "2.2.0", features = ["postgres"]}
 rocket_sync_db_pools = {version = "0.1.0-rc", features = ["diesel_postgres_pool"]}
 dotenv = "0.15"
-reqwest = {version = "0.12.12", features = ["json", "blocking"]}
+reqwest = {version = "0.12.12", features = ["json", "blocking", "cookies"]}
 serde_json = "1.0"
 serde = "1.0.218"
 redis = { version = "0.29.1", features = ["tokio-comp"] }
@@ -23,3 +23,5 @@ utoipa-swagger-ui = { version = "9.0.1", features = ["rocket", "reqwest"]}
 
 
 rocket_oauth2 = "0.5.0"
+jsonwebtoken = "9.3.1"
+jwks_client_rs = "0.5"

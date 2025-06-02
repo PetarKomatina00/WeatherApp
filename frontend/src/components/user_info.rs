@@ -11,7 +11,26 @@ pub fn get_user_info() -> Html{
         Callback::from(move |e: MouseEvent| {
             log!("onclick called");
             spawn_local(async move {
-                let resp = Request::get(&format!("http://127.0.0.1:8000/auth0/userinfo"))
+                let resp = Request::get(&format!("http://127.0.0.1:8000/private"))
+                .credentials(reqwasm::http::RequestCredentials::Include)
+                .send()
+                .await
+                .unwrap();
+            log!(&format!("{}", resp.status()));
+            if resp.status() == 200{
+                log!("Super");
+            }
+            else {
+                log!("Not super :(");
+            }
+            });
+        })
+    };
+    let onclick2 = {
+        Callback::from(move |e: MouseEvent| {
+            log!("onclick called");
+            spawn_local(async move {
+                let resp = Request::get(&format!("http://127.0.0.1:8000/accesstoken"))
                 .credentials(reqwasm::http::RequestCredentials::Include)
                 .send()
                 .await
@@ -27,6 +46,9 @@ pub fn get_user_info() -> Html{
         })
     };
     html!{
-        <button type = "button" onclick = {onclick}>{"Get User Info"}</button>
+        <>
+        <button type = "button" onclick = {onclick}>{"Get tokenn"}</button>
+        <button type = "button" onclick = {onclick2}>{"Get access token"}</button>
+        </>
     }
 }

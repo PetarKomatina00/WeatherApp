@@ -20,34 +20,33 @@ pub fn login(oauth2: OAuth2<Auth0>, jar: &CookieJar<'_>) -> Redirect{
             &[("prompt", "login")],         
             )
         .unwrap();
-    println!("{:?}", ouath);
+    //println!("{:?}", ouath);
     ouath
 }
 
 #[get("/callback")]
 pub fn callback(token: TokenResponse<Auth0>, jar: &CookieJar<'_>) -> Redirect {
-    println!("Callback: {:?}", jar);
+    //println!("Callback: {:?}", jar);
     jar.add_private(
         Cookie::build(("access_token", token.access_token().to_owned()))
             .path("/")
               .same_site(SameSite::None)
-              .secure(true)
               .build());
-    Redirect::to("/")
+    //println!("Callback222: {:?}", jar);
+    Redirect::to("http://127.0.0.1:8001/")
 }
-
-#[get("/userinfo")]
-pub async fn get_user_info(jar: &CookieJar<'_>) -> Result<Json<UserInfo>, Status>{
-    println!("UserInfo: {:?}", jar);
+#[get("/api/token")]
+pub fn api_token(jar: &CookieJar<'_>) -> Result<Json<String>, Status>{
+    //println!("{:?}", jar);
     let token = jar.get_private("access_token")
-        .map(|c| c.value().to_owned())
-        .ok_or(Status::Unauthorized);
+    .map(|c| c.value().to_string())
+    .ok_or(Status::Unauthorized)?;
 
     println!("Token: {:?}", token);
-    let token = token.expect("SOmething went wrong with the token");
-    println!("Token: {}", token);
-    match fetch_auth0_userinfo(&token).await {
-        Ok(profile) => Ok(Json(profile)),
-        Err(_) => Err(Status::Unauthorized),
-    }
+
+    //let decoded = decode_only(&token).expect("Failed to decode JWT");
+
+    
+    //println!("Decoded: {:?}", decoded);
+    Ok(Json(token))
 }

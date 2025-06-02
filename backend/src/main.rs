@@ -21,6 +21,7 @@ pub mod config;
 pub mod swagger;
 pub mod auth0;
 pub mod models;
+pub mod jwt;
 // #[options("/<_..>")]
 // fn all_options() -> rocket::http::Status {
 //     rocket::http::Status::Ok
@@ -37,10 +38,6 @@ pub fn establish_connection() -> PgConnection{
     PgConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("error connection to {}", database_url))
 }
-
-
-
-
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error>{
     // let weatherapi: &str = common::OPENWEATHER_API_KEY;
@@ -60,8 +57,12 @@ async fn main() -> Result<(), rocket::Error>{
             SwaggerUi::new("/swagger-ui/<_..>").url("/api-docs/openapi.json", ApiDoc::openapi()),
         )
         .mount("/auth0", routes![
-            auth0::auth0::login, auth0::auth0::callback, auth0::auth0::get_user_info
+            auth0::auth0::login, auth0::auth0::callback, 
+            auth0::auth0::api_token
         ])
+        .mount("/", routes![jwt::jwt_utility::get_user_claim, 
+        jwt::jwt_utility::get_access_token,
+        jwt::jwt_utility::get_user_info])
         .attach(OAuth2::<auth0::auth0::Auth0>::fairing("auth0"))
         
         // .attach(DbConnection::fairing())
