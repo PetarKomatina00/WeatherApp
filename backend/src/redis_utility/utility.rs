@@ -83,7 +83,5 @@ impl Utility{
         let pool = cfg.create_pool(Some(Runtime::Tokio1)).unwrap();
         
         pool
-    
     }
-    
 }
