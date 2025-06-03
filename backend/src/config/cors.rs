@@ -1,8 +1,6 @@
 use rocket_cors::{AllowedOrigins, AllowedHeaders};
-use rocket::{fairing::{Fairing, Info, Kind}, http::Method};
-use rocket::{Request, Response};
-use rocket::http::Header;
-use std::{env, error::Error};
+use rocket::http::Method;
+use std::error::Error;
 
 
 

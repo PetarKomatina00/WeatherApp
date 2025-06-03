@@ -1,25 +1,25 @@
-use std::{collections::HashSet, env, fmt::format};
+use std::{borrow::Cow, env};
 
-use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, Validation};
-use reqwest::header::X_FRAME_OPTIONS;
-use rocket::{futures::future::Lazy, http::Status, request::{FromRequest, Outcome, Request}, serde::{self, json::Json}};
+use jsonwebtoken::decode_header;
+use percent_encoding::percent_decode_str;
+use rocket::{http::Status, request::{FromRequest, Outcome, Request}, serde::{self, json::Json}};
 use serde::{Deserialize, Serialize};
-use jwks_client_rs::{source::WebSource, JwksClient};
-use lazy_static::lazy_static;
-
 
 #[derive(Serialize)]
 struct TokenRequest<'a>{
     grant_type: &'a str,
     client_id: &'a str,
     client_secret: &'a str,
-    audience: &'a str
+    audience: &'a str,
+    code: &'a str
 }
 
 #[derive(Deserialize, Debug)]
 pub struct TokenResponse{
     access_token: String, 
+    #[allow(dead_code)]
     token_type: String, 
+    #[allow(dead_code)]
     expires_in: u64
 }
 #[derive(Debug, Deserialize, Default, PartialEq)]
@@ -77,17 +77,25 @@ impl<'r> FromRequest<'r> for User{
         //     None => return Outcome::Error((Status::Unauthorized, ())),
         // };
 
-        let token = jar.get_private("access_token")
+        let code_from_auth0_callback = jar.get_private("access_token")
         .map(|c| c.value().to_string())
         .ok_or(Status::Unauthorized)
         .expect("Error getting token");
+        
+        println!("Code from auth0: {}", code_from_auth0_callback);
+        let code = code_from_auth0_callback.as_str();
 
-        println!("Token accessed");
-        println!("Token: {}", token);
+        let decoded = decode_one_time_callback_string(code);
+        let access_token = get_access_token(&decoded).await.expect("Error");
 
-        // let x = get_user_info(token).await;
+        println!("Access Token from request: {}", access_token);
+        //let access_token = get_access_token(code_from_auth0_callback).await;
+        //println!("Token accessed");
+        //println!("Token: {}", token);
 
-        // println!("Body JSON{:?}:", x);
+        //let x = get_user_info(token).await;
+
+        //println!("Body JSON{:?}:", x);
         Outcome::Success(User(Claims::default()))
         // match validate(&token).await{
         //     Ok(claims) => Outcome::Success(User(claims)),
@@ -96,17 +104,16 @@ impl<'r> FromRequest<'r> for User{
     }
 }
 
-async fn validate(token: &str) -> Result<Claims, String>{
+#[get("/validate/<token>")]
+pub async fn validate(token: &str){
     println!("Validation started");
-    println!("Token is: {}", token);
+    //println!("Token is: {}", token);
 
-    //introspect_token(token)
-    //let kid = decode_header(&token).expect("Could not decode header");
-    //println!("KID is: {:?}", kid);
+    let kid = decode_header(&token).expect("Could not decode header");
+    println!("KID is: {:?}", kid);
     
     // let json_web_key: JsonWebKey = get_concrete_web_key(kid).await.expect("Failed to get concrete web key");
     // println!("JSON WEB KEY IS: {:?}", json_web_key);
-
 
     // let public_key = DecodingKey::from_rsa_components
     // (&json_web_key.n, &json_web_key.e)
@@ -123,8 +130,7 @@ async fn validate(token: &str) -> Result<Claims, String>{
 
     // let claims = decode::<Claims>(token, &public_key, &validation).expect("Error validating JWT").claims;
     
-    let claim = Claims::default();
-    Ok(claim)
+    // let claim = Claims::default();
 }
 
 // kid is what type of algorithm is used
@@ -150,15 +156,12 @@ async fn get_concrete_web_key(kid: String) -> Option<JsonWebKey>{
     }
 }
 
-
-
 #[get("/private")]
 pub fn get_user_claim(user: User){
     println!("Hello, {}", user.0.sub)
 }
 
-#[get("/accesstoken")]
-pub async fn get_access_token() -> Result<(), String>{
+pub async fn get_access_token(code: &str) -> Result<String, String>{
     dotenv::dotenv().ok();
 
     let client_id = env::var("CLIENT_ID").expect("Cannot get client id");
@@ -175,7 +178,8 @@ pub async fn get_access_token() -> Result<(), String>{
         grant_type: "client_credentials",
         client_id: client_id.as_str(),
         client_secret: client_secret.as_str(),
-        audience: audience.as_str()
+        audience: audience.as_str(),
+        code: &code
     };
     let request = client
     .request(reqwest::Method::POST, "https://dev-kr7vi67c2vo4vs3w.eu.auth0.com/oauth/token")
@@ -186,8 +190,8 @@ pub async fn get_access_token() -> Result<(), String>{
     //println!("Response : {:?}", response);
 
     let token_response: TokenResponse = response.json().await.expect("Trouble converting Token Response");
-    println!("Access Token: {:?}", token_response.access_token);
-    Ok(())
+    //println!("Access Token: {:?}", token_response.access_token);
+    Ok(token_response.access_token)
 }
 
 #[get("/userinfo/<access_token>")]
@@ -213,4 +217,12 @@ pub async fn get_user_info(access_token: String) -> Json<UserProfile> {
     println!("Body: {:?}", body);
 
     Json(body)
+}
+fn decode_one_time_callback_string(one_time_string: &str) -> Cow<'_, str>{
+
+    let decode: std::borrow::Cow<'_, str> = percent_decode_str(one_time_string)
+        .decode_utf8()
+        .expect("Invalid");
+
+    decode
 }

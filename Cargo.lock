@@ -167,6 +167,7 @@ dependencies = [
  "jsonwebtoken",
  "jwks_client_rs",
  "lazy_static",
+ "percent-encoding",
  "redis",
  "reqwest",
  "rocket",

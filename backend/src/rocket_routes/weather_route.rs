@@ -2,18 +2,19 @@
 
 use std::env;
 
-use reqwest::ClientBuilder;
 use rocket::serde::json::Json;
 
 use serde::Deserialize;
 //use crate::models::weather::WeatherData;
 use shared::WeatherData;
-use utoipa::{openapi, OpenApi};
+use utoipa::OpenApi;
 
 use crate::{models::UserInfo, repositories::weather_repository::WeatherRepository};
 // use crate::models::weather::WeatherData;
 
 #[derive(Deserialize, Debug)]
+
+#[allow(dead_code)]
 struct TokenResponse{
     access_token: String,
     token_type: String,
