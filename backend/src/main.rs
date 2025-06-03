@@ -1,6 +1,5 @@
 use std::env;
 
-use auth0::auth0::Auth0;
 use diesel::{Connection, PgConnection};
 use rocket_oauth2::OAuth2;
 use rocket_routes::weather_route::ApiDoc;
@@ -61,8 +60,8 @@ async fn main() -> Result<(), rocket::Error>{
             auth0::auth0::api_token
         ])
         .mount("/", routes![jwt::jwt_utility::get_user_claim, 
-        jwt::jwt_utility::get_access_token,
-        jwt::jwt_utility::get_user_info])
+        jwt::jwt_utility::get_user_info,
+        jwt::jwt_utility::validate])
         .attach(OAuth2::<auth0::auth0::Auth0>::fairing("auth0"))
         
         // .attach(DbConnection::fairing())

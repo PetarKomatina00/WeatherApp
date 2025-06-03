@@ -1,11 +1,6 @@
-use std::env;
 
-use reqwest::Error;
-use rocket::{figment::Profile, http::{Cookie, CookieJar, SameSite, Status}, response::Redirect, serde::json::Json};
+use rocket::{http::{Cookie, CookieJar, SameSite, Status}, response::Redirect, serde::json::Json};
 use rocket_oauth2::{OAuth2, TokenResponse};
-use serde::{Deserialize, Serialize};
-
-use crate::{models::UserInfo, rocket_routes::weather_route::fetch_auth0_userinfo};
 
 
 pub struct Auth0;
@@ -33,7 +28,7 @@ pub fn callback(token: TokenResponse<Auth0>, jar: &CookieJar<'_>) -> Redirect {
               .same_site(SameSite::None)
               .build());
     //println!("Callback222: {:?}", jar);
-    Redirect::to("http://127.0.0.1:8001/")
+    Redirect::to("http://127.0.0.1:8001")
 }
 #[get("/api/token")]
 pub fn api_token(jar: &CookieJar<'_>) -> Result<Json<String>, Status>{
