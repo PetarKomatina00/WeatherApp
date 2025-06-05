@@ -1,6 +1,6 @@
-use std::{borrow::Cow, env};
+use std::{borrow::Cow, collections::HashSet, env};
 
-use jsonwebtoken::decode_header;
+use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, Validation};
 use percent_encoding::percent_decode_str;
 use rocket::{http::Status, request::{FromRequest, Outcome, Request}, serde::{self, json::Json}};
 use serde::{Deserialize, Serialize};
@@ -31,13 +31,14 @@ pub struct JsonWebKey{
     pub e: String, 
     pub kid: String,
     pub x5t: String,
-    pub x5c: String, 
+    pub x5c: Vec<String>, 
     pub alg: String
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Jwks{
-    pub keys: Vec<JsonWebKey>
+pub struct VecJsonWebKey{
+    #[serde(rename="keys")]
+    pub jwk_vec: Vec<JsonWebKey>
 }
 
 #[derive(Debug)]
@@ -70,12 +71,9 @@ impl<'r> FromRequest<'r> for User{
     type Error = ();
 
     async fn from_request(req: &'r Request<'_>) -> Outcome<Self, ()> {
+
         let jar = req.cookies();
         println!("From request started again");
-        // let token = match jar.get_private("access_token") {
-        //     Some(x) => x.value().to_owned(),
-        //     None => return Outcome::Error((Status::Unauthorized, ())),
-        // };
 
         let code_from_auth0_callback = jar.get_private("access_token")
         .map(|c| c.value().to_string())
@@ -89,71 +87,62 @@ impl<'r> FromRequest<'r> for User{
         let access_token = get_access_token(&decoded).await.expect("Error");
 
         println!("Access Token from request: {}", access_token);
-        //let access_token = get_access_token(code_from_auth0_callback).await;
-        //println!("Token accessed");
-        //println!("Token: {}", token);
-
-        //let x = get_user_info(token).await;
-
-        //println!("Body JSON{:?}:", x);
-        Outcome::Success(User(Claims::default()))
-        // match validate(&token).await{
-        //     Ok(claims) => Outcome::Success(User(claims)),
-        //     Err(_) => Outcome::Forward(Status::Unauthorized)
-        // }
+        match validate_token(&access_token).await{
+             Ok(claims) => Outcome::Success(User(claims)),
+             Err(_) => Outcome::Forward(Status::Unauthorized)
+         }
+         
     }
 }
 
-#[get("/validate/<token>")]
-pub async fn validate(token: &str){
+pub async fn validate_token(access_token: &str) -> Result<Claims, String>{
     println!("Validation started");
     //println!("Token is: {}", token);
 
-    let kid = decode_header(&token).expect("Could not decode header");
-    println!("KID is: {:?}", kid);
+    let kid: String = decode_header(&access_token).expect("Could not decode header").kid.expect("Could not get KID");
+    //println!("KID is: {}", kid);
     
-    // let json_web_key: JsonWebKey = get_concrete_web_key(kid).await.expect("Failed to get concrete web key");
-    // println!("JSON WEB KEY IS: {:?}", json_web_key);
+    let json_web_key: JsonWebKey = get_concrete_web_key(kid).await.expect("Failed to get concrete web key");
+    //println!("JSON WEB KEY IS: {:?}", json_web_key);
 
-    // let public_key = DecodingKey::from_rsa_components
-    // (&json_web_key.n, &json_web_key.e)
-    // .expect("Trouble extracting public key");
-    // let mut validation = Validation::new(Algorithm::RS256);
+    let public_key = DecodingKey::from_rsa_components
+    (&json_web_key.n, &json_web_key.e)
+    .expect("Trouble creating a RSA DecoingKey");
+    let mut validation = Validation::new(Algorithm::RS256);
 
-    // let audience = env::var("AUDIENCE").expect("Cannot get auth0 audience");
-    // let audience_url = format!("https://{}", audience);
-    // validation.set_audience(&[audience_url]);
+    let audience = env::var("AUDIENCE").expect("Cannot get auth0 audience");
+    let audience_url = format!("https://{}", audience);
+    validation.set_audience(&[audience_url]);
 
-    // let auth0_domain = env::var("AUTH0_DOMAIN").expect("Cannot get auth0 DOMAIN");
-    // let iss: HashSet<String> = HashSet::from([format!("https://{}", auth0_domain)]);
-    // validation.iss = Some(iss);
+    let auth0_domain = env::var("AUTH0_DOMAIN").expect("Cannot get auth0 DOMAIN");
+    let iss: HashSet<String> = HashSet::from([format!("https://{}", auth0_domain)]);
+    validation.iss = Some(iss);
 
-    // let claims = decode::<Claims>(token, &public_key, &validation).expect("Error validating JWT").claims;
+    let claims = decode::<Claims>(access_token, &public_key, &validation).expect("Error validating JWT").claims;
     
-    // let claim = Claims::default();
+    // TODO()
+    // Give the concrete custom claims inside the payload.
+    Ok(claims)
 }
 
-// kid is what type of algorithm is used
-// see the url link below of what the jsonwebkeys are
+// KID represents what public keys are used during encryption.
+// AUTH0 has a well known JSON set of (n,e)
+// See the url link below of what the jsonwebkeys are
 async fn get_concrete_web_key(kid: String) -> Option<JsonWebKey>{
-
+    dotenv::dotenv().ok();
     let tenant = env::var("AUTH0_DOMAIN").expect("Cannot get Tenant");
+    println!("Tenant: {}", tenant);
     let url = format!("https://{}/.well-known/jwks.json", tenant);
 
-    let jwk: Jwks = reqwest::get(url).await.expect("Error getting JSON WEB TOKENS").json().await.unwrap();
+    let jwks_vec: VecJsonWebKey = reqwest::get(url).await.expect("Error getting JSON WEB TOKENS")
+    .json::<VecJsonWebKey>().await.expect("Could Convert Well-Known JWKS");
 
-    let mut json_web_key: JsonWebKey = Default::default();
-    for key in jwk.keys{
-        if kid == key.kid{
-            json_web_key = key;
+    for jwk in jwks_vec.jwk_vec{
+        if jwk.kid == kid {
+            return Some(jwk);
         }
     }
-    if json_web_key == JsonWebKey::default(){
-        None
-    }
-    else{
-        Some(json_web_key)
-    }
+    None
 }
 
 #[get("/private")]
