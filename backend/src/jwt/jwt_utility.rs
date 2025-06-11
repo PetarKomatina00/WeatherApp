@@ -11,7 +11,7 @@ struct TokenRequest<'a>{
     client_id: &'a str,
     client_secret: &'a str,
     audience: &'a str,
-    code: &'a str
+    redirect_uri: &'a str
 }
 
 #[derive(Deserialize, Debug)]
@@ -20,7 +20,9 @@ pub struct TokenResponse{
     #[allow(dead_code)]
     token_type: String, 
     #[allow(dead_code)]
-    expires_in: u64
+    expires_in: u64,
+    #[allow(dead_code)]
+    id_token: String,
 }
 #[derive(Debug, Deserialize, Default, PartialEq)]
 pub struct JsonWebKey{
@@ -49,8 +51,13 @@ pub struct MyError;
 pub struct Claims {
     sub: String,
     iss: String,
-    aud: String,
+    aud: Vec<String>,
     exp: usize,
+    iat: usize,
+    scope: String,
+    #[serde(rename="https://rust-weather-api.com/roles")]
+    user_type: String,
+    permissions: Vec<String>
 }
 
 
@@ -75,19 +82,19 @@ impl<'r> FromRequest<'r> for User{
         let jar = req.cookies();
         println!("From request started again");
 
-        let code_from_auth0_callback = jar.get_private("access_token")
+        let jwt_from_auth0_callback = jar.get_private("access_token")
         .map(|c| c.value().to_string())
         .ok_or(Status::Unauthorized)
         .expect("Error getting token");
         
-        println!("Code from auth0: {}", code_from_auth0_callback);
-        let code = code_from_auth0_callback.as_str();
+        println!("JWT from auth0: {}", jwt_from_auth0_callback);
+        //let jwe = jwe_from_auth0_callback.as_str();
 
-        let decoded = decode_one_time_callback_string(code);
-        let access_token = get_access_token(&decoded).await.expect("Error");
+        //let decoded_jwe = decode_one_time_callback_string(jwe);
+        //let access_token = get_access_token(&decoded_jwe).await.expect("Error");
 
-        println!("Access Token from request: {}", access_token);
-        match validate_token(&access_token).await{
+        //println!("Access Token from request: {}", access_token);
+        match validate_token(&jwt_from_auth0_callback).await{
              Ok(claims) => Outcome::Success(User(claims)),
              Err(_) => Outcome::Forward(Status::Unauthorized)
          }
@@ -97,6 +104,7 @@ impl<'r> FromRequest<'r> for User{
 
 pub async fn validate_token(access_token: &str) -> Result<Claims, String>{
     println!("Validation started");
+    println!("Access token from validate_token: {}", access_token);
     //println!("Token is: {}", token);
 
     let kid: String = decode_header(&access_token).expect("Could not decode header").kid.expect("Could not get KID");
@@ -147,10 +155,11 @@ async fn get_concrete_web_key(kid: String) -> Option<JsonWebKey>{
 
 #[get("/private")]
 pub fn get_user_claim(user: User){
-    println!("Hello, {}", user.0.sub)
+    println!("Hello, {}", user.0.sub);
+    println!("User role: {}", user.0.user_type);
 }
 
-pub async fn get_access_token(code: &str) -> Result<String, String>{
+pub async fn get_access_token(decoded_jwe: &str) -> Result<String, String>{
     dotenv::dotenv().ok();
 
     let client_id = env::var("CLIENT_ID").expect("Cannot get client id");
@@ -163,24 +172,28 @@ pub async fn get_access_token(code: &str) -> Result<String, String>{
     let mut headers = reqwest::header::HeaderMap::new();
     headers.insert("Accept", "application/x-www-form-urlencoded".parse().expect("Could not parse http"));
 
+    let redirect_uri = format!("http://127.0.0.1:8000/auth0/callback");
     let body = TokenRequest {
         grant_type: "client_credentials",
         client_id: client_id.as_str(),
         client_secret: client_secret.as_str(),
         audience: audience.as_str(),
-        code: &code
+        redirect_uri: redirect_uri.as_str()
     };
+    println!("Code: {}", decoded_jwe);
     let request = client
     .request(reqwest::Method::POST, "https://dev-kr7vi67c2vo4vs3w.eu.auth0.com/oauth/token")
     .header("content-type", "application/x-www-form-urlencoded")
     .form(&body);
     let response = request.send().await.expect("Could not send HTTP");
 
-    //println!("Response : {:?}", response);
+    println!("Response  Status: {:?}", &response.status());
+    println!("Body: {:?}", &response.text().await.unwrap());
 
-    let token_response: TokenResponse = response.json().await.expect("Trouble converting Token Response");
+
+    //let token_response: TokenResponse = response.json().await.expect("Trouble converting Token Response");
     //println!("Access Token: {:?}", token_response.access_token);
-    Ok(token_response.access_token)
+    Ok(String::from("a"))
 }
 
 #[get("/userinfo/<access_token>")]

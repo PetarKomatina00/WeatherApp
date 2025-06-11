@@ -60,8 +60,7 @@ async fn main() -> Result<(), rocket::Error>{
             auth0::auth0::api_token
         ])
         .mount("/", routes![jwt::jwt_utility::get_user_claim, 
-        jwt::jwt_utility::get_user_info,
-        jwt::jwt_utility::validate])
+        jwt::jwt_utility::get_user_info])
         .attach(OAuth2::<auth0::auth0::Auth0>::fairing("auth0"))
         
         // .attach(DbConnection::fairing())
