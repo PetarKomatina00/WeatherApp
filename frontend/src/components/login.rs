@@ -19,6 +19,6 @@ pub fn login_button() -> Html{
          .expect("Something went wront with redirection");
     });
     html!{
-        <button onclick = {on_click} type = "button">{"Login with Auth0"}</button>
+        <button class = {classes!("login-btn")}onclick = {on_click} type = "button">{"Login with Auth0"}</button>
     }
 }
