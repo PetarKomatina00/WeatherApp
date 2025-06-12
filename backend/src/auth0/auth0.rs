@@ -32,6 +32,7 @@ pub fn callback(code: String, state: String, token: TokenResponse<Auth0>, jar: &
     jar.add_private(
         Cookie::build(("access_token", token.access_token().to_owned()))
             .path("/")
+            .secure(true)
               .same_site(SameSite::None)
               .build());
     //println!("Callback222: {:?}", jar);

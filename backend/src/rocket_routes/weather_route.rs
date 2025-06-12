@@ -9,7 +9,7 @@ use serde::Deserialize;
 use shared::WeatherData;
 use utoipa::OpenApi;
 
-use crate::{models::UserInfo, repositories::weather_repository::WeatherRepository};
+use crate::{jwt::jwt_utility, models::UserInfo, repositories::weather_repository::WeatherRepository};
 // use crate::models::weather::WeatherData;
 
 #[derive(Deserialize, Debug)]
@@ -20,6 +20,7 @@ struct TokenResponse{
     token_type: String,
     expires_in: i32
 }
+
 
 #[utoipa::path(
     get,
@@ -34,10 +35,10 @@ struct TokenResponse{
     tag = "Get Operation"
 )]
 #[get("/fetch/<city>")]
-pub async fn get_weather_api(city: String) -> Json<WeatherData>{
-    //todo!("Do something with data...");
+pub async fn get_weather_api(user: jwt_utility::User, city: String) -> Json<WeatherData>{
     let weather_data = WeatherRepository::get_city_weather_by_name(&city).await.unwrap();
     Json(weather_data)
+    
 }
 
 pub async fn fetch_access_token() -> Result<(), String>{

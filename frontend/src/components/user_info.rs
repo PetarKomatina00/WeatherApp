@@ -1,7 +1,10 @@
 use gloo_net::http::Request;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
-use gloo::console::log;
+use gloo::{console::log, dialogs::prompt};
+
+
+
 #[function_component(UserInfo)]
 pub fn get_user_info() -> Html{
 
@@ -18,7 +21,7 @@ pub fn get_user_info() -> Html{
                 .unwrap();
             log!(&format!("{}", resp.status()));
             if resp.status() == 200{
-                log!("Super");
+                //prompt(message, default)
             }
             else {
                 log!("Not super :(");

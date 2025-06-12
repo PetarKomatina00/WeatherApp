@@ -54,10 +54,10 @@ pub struct Claims {
     aud: Vec<String>,
     exp: usize,
     iat: usize,
-    scope: String,
+    scope: Option<String>,
     #[serde(rename="https://rust-weather-api.com/roles")]
-    user_type: String,
-    permissions: Vec<String>
+    user_type: Vec<String>,
+    permissions: Option<Vec<String>>
 }
 
 
@@ -82,23 +82,18 @@ impl<'r> FromRequest<'r> for User{
         let jar = req.cookies();
         println!("From request started again");
 
-        let jwt_from_auth0_callback = jar.get_private("access_token")
-        .map(|c| c.value().to_string())
-        .ok_or(Status::Unauthorized)
-        .expect("Error getting token");
+        if let Some(cookie) = jar.get_private("access_token"){
+            let jwt_from_auth0_callback = cookie.value();
+            println!("JWT from auth0: {}", jwt_from_auth0_callback);
+            match validate_token(&jwt_from_auth0_callback).await{
+                 Ok(claims) => Outcome::Success(User(claims)),
+                 Err(_) => Outcome::Forward(Status::Unauthorized)
+            }
+        }
+        else{
+            Outcome::Forward(Status::Unauthorized)
+        }
         
-        println!("JWT from auth0: {}", jwt_from_auth0_callback);
-        //let jwe = jwe_from_auth0_callback.as_str();
-
-        //let decoded_jwe = decode_one_time_callback_string(jwe);
-        //let access_token = get_access_token(&decoded_jwe).await.expect("Error");
-
-        //println!("Access Token from request: {}", access_token);
-        match validate_token(&jwt_from_auth0_callback).await{
-             Ok(claims) => Outcome::Success(User(claims)),
-             Err(_) => Outcome::Forward(Status::Unauthorized)
-         }
-         
     }
 }
 
@@ -106,7 +101,7 @@ pub async fn validate_token(access_token: &str) -> Result<Claims, String>{
     println!("Validation started");
     println!("Access token from validate_token: {}", access_token);
     //println!("Token is: {}", token);
-
+    dotenv::dotenv().ok();
     let kid: String = decode_header(&access_token).expect("Could not decode header").kid.expect("Could not get KID");
     //println!("KID is: {}", kid);
     
@@ -120,14 +115,17 @@ pub async fn validate_token(access_token: &str) -> Result<Claims, String>{
 
     let audience = env::var("AUDIENCE").expect("Cannot get auth0 audience");
     let audience_url = format!("https://{}", audience);
-    validation.set_audience(&[audience_url]);
+    println!("audience: {}", audience_url);
+    validation.set_audience(&[audience]);
 
     let auth0_domain = env::var("AUTH0_DOMAIN").expect("Cannot get auth0 DOMAIN");
-    let iss: HashSet<String> = HashSet::from([format!("https://{}", auth0_domain)]);
+    let iss: HashSet<String> = HashSet::from([format!("https://{}/", auth0_domain)]);
+    println!("audience: {:?}", iss);
     validation.iss = Some(iss);
-
-    let claims = decode::<Claims>(access_token, &public_key, &validation).expect("Error validating JWT").claims;
+    println!("Validaton: {:?}", validation);
+    let claims: Claims = decode::<Claims>(access_token, &public_key, &validation).expect("Error validating JWT").claims;
     
+    println!("CLaims {:?}", claims);
     // TODO()
     // Give the concrete custom claims inside the payload.
     Ok(claims)
@@ -156,9 +154,13 @@ async fn get_concrete_web_key(kid: String) -> Option<JsonWebKey>{
 #[get("/private")]
 pub fn get_user_claim(user: User){
     println!("Hello, {}", user.0.sub);
-    println!("User role: {}", user.0.user_type);
+    println!("User role: {:?}", user.0.user_type);
 }
 
+
+pub async fn is_authenticated(user: User) -> bool{
+    true
+}
 pub async fn get_access_token(decoded_jwe: &str) -> Result<String, String>{
     dotenv::dotenv().ok();
 
