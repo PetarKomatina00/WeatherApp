@@ -1,24 +1,26 @@
 use shared::WeatherData;
-use yew::{function_component, Html, Properties};
 use yew::html;
+use yew::{function_component, Html, Properties};
 
 use chrono::{Local, TimeZone, Utc};
 #[derive(Properties, PartialEq)]
-pub struct Props{
-    pub weather_data: WeatherData
+pub struct Props {
+    pub weather_data: WeatherData,
 }
 #[function_component(WeatherCard)]
-pub fn weather_card(props: &Props) -> Html{
+pub fn weather_card(props: &Props) -> Html {
+    let todays_time = Local::now().format("%d/%m").to_string();
+    let todays_day = Local::now().format("%A").to_string();
+    let sunrise = Local
+        .timestamp_opt(props.weather_data.sys.sunrise, 0)
+        .unwrap();
+    let display_sunrise = sunrise.format("%H:%M").to_string();
 
-
-  let todays_time = Local::now().format("%d/%m").to_string();
-  let todays_day = Local::now().format("%A").to_string();
-  let sunrise = Local.timestamp_opt(props.weather_data.sys.sunrise, 0).unwrap();
-  let display_sunrise = sunrise.format("%H:%M").to_string();
-
-  let sunset = Local.timestamp_opt(props.weather_data.sys.sunset, 0).unwrap();
-  let display_sunset = sunset.format("%H:%M").to_string();
-    html!{
+    let sunset = Local
+        .timestamp_opt(props.weather_data.sys.sunset, 0)
+        .unwrap();
+    let display_sunset = sunset.format("%H:%M").to_string();
+    html! {
         <div class="container py-4">
             <div class="card border-start-red">
               <div class="card-body">

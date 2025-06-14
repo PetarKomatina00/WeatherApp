@@ -1,24 +1,47 @@
-
 use gloo::console::log;
 use gloo_net::http::Request;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::window;
 use yew::prelude::*;
 
+#[derive(Clone, PartialEq)]
+pub enum Auth0Action{
+    Login,
+    Logout
+}
 
+#[derive(Properties, PartialEq)]
+pub struct Auth0Props{
+    pub action: Auth0Action,
+    pub onclick: Callback<MouseEvent>,
+}
 
 #[function_component(LoginButton)]
-pub fn login_button() -> Html{
+pub fn login_button(props: &Auth0Props) -> Html {
 
-     let on_click = Callback::from(move |e: MouseEvent|{
-         log!(&format!("Button clicked"));
-         window()
-         .unwrap()
-         .location()
-         .set_href("http://127.0.0.1:8000/auth0/login")
-         .expect("Something went wront with redirection");
+    let mut url = String::default();
+    let mut label = String::default();
+    match props.action{
+        Auth0Action::Login => {
+            url = format!("http://127.0.0.1:8000/auth0/login");
+            label = format!("Log in");
+        }
+        Auth0Action::Logout => {
+            url = format!("http://127.0.0.1:8000/auth0/logout");
+            label = format!("Log out");
+        }
+    };
+
+    let on_click = Callback::from(move |_e: MouseEvent| {
+        log!(&format!("Button clicked"));
+        window()
+            .unwrap()
+            .location()
+            .set_href(&url)
+            .expect("Something went wront with redirection");
     });
-    html!{
-        <button class = {classes!("login-btn")}onclick = {on_click} type = "button">{"Login with Auth0"}</button>
+
+    html! {
+        <button class = {classes!("futuristic-button")}onclick = {on_click} type = "button">{label}</button>
     }
 }

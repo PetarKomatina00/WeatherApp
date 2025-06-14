@@ -1,22 +1,25 @@
-use gloo::{console::log, dialogs::{alert, prompt}};
+use gloo::{
+    console::log,
+    dialogs::{alert, prompt},
+};
 use gloo_net::http::{Request, Response};
+use serde::Deserialize;
 use shared::WeatherData;
 use web_sys::console::log;
 use yew::prelude::*;
-use serde::Deserialize;
 
-pub enum FetchError{
-    Unauthorized
+pub enum FetchError {
+    Unauthorized,
 }
 #[derive(Clone, PartialEq, Default)]
 pub struct ButtonContent {
     pub content: String,
 }
 
-pub async fn fetch_weather_data(data: &ButtonContent) -> Result<Response, FetchError>{
+pub async fn fetch_weather_data(data: &ButtonContent) -> Result<Response, FetchError> {
     println!("Fetchin data started...");
     let response = Request::get(&format!("http://127.0.0.1:8000/fetch/{}", data.content))
-    .credentials(reqwasm::http::RequestCredentials::Include)
+        .credentials(reqwasm::http::RequestCredentials::Include)
         .send()
         .await
         .map_err(|error| error.to_string());
@@ -27,8 +30,8 @@ pub async fn fetch_weather_data(data: &ButtonContent) -> Result<Response, FetchE
     //     FetchError::Unauthorized
     // }
     println!("Response is: {:?}", response);
-    match response.status(){
+    match response.status() {
         200..=299 => Ok(response),
-        _ => Err(FetchError::Unauthorized)
+        _ => Err(FetchError::Unauthorized),
     }
 }

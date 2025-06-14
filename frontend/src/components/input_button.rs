@@ -1,18 +1,15 @@
-
 use gloo::console::log;
-use yew::prelude::*;
 use web_sys::{console::log, HtmlInputElement};
+use yew::prelude::*;
 
 use crate::api::api::ButtonContent;
 
-
-
 #[derive(Properties, PartialEq)]
-pub struct Props{
-    pub data: Callback<ButtonContent>
+pub struct Props {
+    pub data: Callback<ButtonContent>,
 }
 #[function_component(InputButton)]
-pub fn generate_button(props: &Props) -> Html{
+pub fn generate_button(props: &Props) -> Html {
     let input_value = use_state(|| ButtonContent::default());
 
     let on_change_input_value = {
@@ -21,7 +18,7 @@ pub fn generate_button(props: &Props) -> Html{
             let input = e.target_dyn_into::<HtmlInputElement>();
             if let Some(input) = input {
                 let bc = ButtonContent {
-                    content: input.value()
+                    content: input.value(),
                 };
                 input_value.set(bc);
             }
@@ -29,7 +26,7 @@ pub fn generate_button(props: &Props) -> Html{
     };
     let on_click = {
         let data = props.data.clone();
-        Callback::from(move |_event: MouseEvent|{
+        Callback::from(move |_event: MouseEvent| {
             data.emit((*input_value).clone());
         })
     };
@@ -44,7 +41,7 @@ pub fn generate_button(props: &Props) -> Html{
                           class="form-control"
                           placeholder="Enter city"
                         />
-                        <button onclick = {on_click} class="btn btn-primary" type="button">{"Search"}</button>
+                        <button onclick = {on_click} class="futuristic-button" type="button">{"Search"}</button>
                       </div>
                 </div>
         </>
