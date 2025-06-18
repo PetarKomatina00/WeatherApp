@@ -1,2 +1,2 @@
 -- This file should undo anything in `up.sql`
-DROP TABLE weather
+DROP TABLE api_logs;

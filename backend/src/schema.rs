@@ -1,14 +1,13 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    weather (id) {
-        id -> Int4,
-        city_name -> Text,
-        temperature -> Float8,
-        description -> Text,
-        humidity -> Nullable<Int4>,
-        wind_speed -> Nullable<Float8>,
-        sunrise -> Nullable<Int8>,
-        sunset -> Nullable<Int8>,
+    api_logs (logs_id) {
+        logs_id -> Uuid,
+        trace_id -> Text,
+        func_call -> Text,
+        timestamp -> Timestamp,
+        status -> Text,
+        location -> Nullable<Text>,
+        error_message -> Nullable<Text>,
     }
 }
