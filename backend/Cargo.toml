@@ -5,7 +5,8 @@ edition = "2021"
 
 [dependencies]
 rocket = { version = "0.5.1", features = ["json"] }
-diesel = {version = "2.2.0", features = ["postgres"]}
+diesel = {version = "2.2.0", features = ["postgres", "chrono", "uuid"]}
+chrono = { version = "0.4", features = ["serde"] }
 rocket_sync_db_pools = {version = "0.1.0-rc", features = ["diesel_postgres_pool"]}
 dotenv = "0.15"
 reqwest = {version = "0.12.12", features = ["json", "blocking", "cookies"]}
@@ -16,7 +17,7 @@ deadpool-redis = "0.20.0"
 lazy_static = "1.5.0"
 rocket_cors = "0.6.0"
 utoipa = { version = "5.3.1", features = ["rocket_extras"] }
-
+uuid = {version = "1.17.0",features = ["serde", "v4"]}
 shared = { path = "../shared"}
 utoipa-swagger-ui = { version = "9.0.1", features = ["rocket", "reqwest"]}
 percent-encoding = "2.1"

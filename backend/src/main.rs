@@ -2,7 +2,7 @@ use std::env;
 
 use diesel::{Connection, PgConnection};
 use rocket_oauth2::OAuth2;
-use rocket_routes::weather_route::ApiDoc;
+use rocket_routes::{api_logs_route, weather_route::ApiDoc};
 use rocket_sync_db_pools::database;
 use utoipa::OpenApi;
 
@@ -21,10 +21,7 @@ pub mod rocket_routes;
 mod schema;
 pub mod swagger;
 pub mod tests;
-// #[options("/<_..>")]
-// fn all_options() -> rocket::http::Status {
-//     rocket::http::Status::Ok
-// }
+
 
 #[database("postgres")]
 pub struct DbConnection(PgConnection);
@@ -37,11 +34,6 @@ pub fn establish_connection() -> PgConnection {
 }
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error> {
-    // let weatherapi: &str = common::OPENWEATHER_API_KEY;
-    // println!("Hello, world! {:?}", weatherapi);
-    println!("Hello from main");
-    println!("Hello from main AGAIN");
-    println!("Yo brooo");
     let _city_name = String::from("Barcelona");
     let cors: rocket_cors::Cors = config::cors::cors().expect("Cannot create CORS");
     let _ = rocket::build()
@@ -62,18 +54,17 @@ async fn main() -> Result<(), rocket::Error> {
         )
         .mount(
             "/",
+            routes![
+                api_logs_route::get_api_logs
+            ]
+        )
+        .mount(
+            "/",
             routes![jwt::jwt_utility::get_user_claim, jwt::jwt_utility::who_am_i],
         )
         .attach(OAuth2::<auth0::auth0::Auth0>::fairing("auth0"))
-        // .attach(DbConnection::fairing())
+        .attach(DbConnection::fairing())
         .launch()
         .await?;
-
-    // println!("Calling weather repository");
-    // let result = WeatherRepository::get_city_weather_by_name(city_name).await;
-    // match result {
-    // Ok(message) => println!("Success {}", message),
-    // Err(err) => println!("Error: {}", err)
-    //}
     Ok(())
 }
