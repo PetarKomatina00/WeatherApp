@@ -1,7 +1,8 @@
 use std::env;
 
-use rocket::serde::json::Json;
-
+use diesel::{Connection, PgConnection};
+use rocket::{http::Status, serde::json::Json};
+use crate::{models::NewApiLogs, repositories::api_logs_repository::ApiLogsRepository};
 use serde::Deserialize;
 //use crate::models::weather::WeatherData;
 use shared::WeatherData;
@@ -37,6 +38,21 @@ pub async fn get_weather_api(user: jwt_utility::User, city: String) -> Json<Weat
     let weather_data = WeatherRepository::get_city_weather_by_name(&city)
         .await
         .unwrap();
+
+    // dotenv::dotenv().ok();
+    // let database_url = env::var("DATABASE_URL").expect("Could not get DATABASE URL for POSTGRES");
+    // let mut conn = PgConnection::establish(&database_url).expect("Error establishing connection");
+    // let created_api_log = ApiLogsRepository::create_api_log(&mut conn, NewApiLogs{
+    //     trace_id: user.0.sub,
+    //     func_call: String::from("get_weather_api"),
+    //     status: String::from("OK"),
+    //     location: Some(city),
+    //     error_message: None
+    // });
+    // match created_api_log{
+    //     Ok(_) => {println!("Successfully added a row in db");}
+    //     Err(e) => {println!("Oops something went wrong: {}", e)}
+    // }
     Json(weather_data)
 }
 

@@ -18,7 +18,7 @@ use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct Profile {
     pub name: String,
     pub sub: String,
@@ -36,12 +36,13 @@ pub fn home() -> Html {
     // });
     let weather_data = use_state(|| WeatherData::default());
     let is_login_modal_open = use_state(|| false);
-    let user_profile = use_state(|| None::<Profile>);
+    let user_profile: UseStateHandle<Option<Profile>> = use_state(|| None::<Profile>);
     let is_logged_in = use_state(|| false);
 
     let is_logged_in_handle = is_logged_in.clone();
+    let user_profile_handle = user_profile.clone();
     use_effect_with((), move |_| {
-        let user_profile_handle = user_profile.clone();
+        let user_profile_handle = user_profile_handle.clone();
         spawn_local(async move {
             let url = format!("http://127.0.0.1:8000/whoami");
             let response = Request::get(&url)
@@ -52,8 +53,8 @@ pub fn home() -> Html {
 
             match response{
                 Ok(r) if r.ok() => {
-                    let user_profile: Profile = r.json().await.expect("Error converting JSON to Profile");
-                    user_profile_handle.set(Some(user_profile));
+                    let profile: Profile = r.json().await.expect("Error converting JSON to Profile");
+                    user_profile_handle.set(Some(profile));
                     is_logged_in_handle.set(true);
                 }
                 _ => {
@@ -95,8 +96,10 @@ pub fn home() -> Html {
         <>
         if *is_logged_in{
             
+            //let user_profile: UseStateHandle<Option<Profile>> = use_state(|| None::<Profile>);
             <LoginButton action = {Auth0Action::Logout} onclick = {Callback::from(move |_| {})}/>
-            // <button class="futuristic-button">{"Log out"}</button>
+            <>{format!("Hello {}", user_profile.as_ref().map(|p| &p.name).unwrap_or(&format!("Guest"))) }</>
+
         }
         else {
             <LoginButton action = {Auth0Action::Login} onclick = {Callback::from(move |_| {})}/>

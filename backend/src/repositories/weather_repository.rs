@@ -43,13 +43,12 @@ impl WeatherRepository {
             "http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units=metric",
             city, api_key
         );
-        println!("Hello!");
         let response: reqwest::Response = reqwest::get(&url)
             .await
             .expect("WeatherRepository: Failed to get response from GET Request");
-        println!("WeatherDataFromRepository: {:?}", response);
+        //println!("WeatherDataFromRepository: {:?}", response);
 
-        println!("{:?}", response.status());
+        //println!("{:?}", response.status());
         if response.status() == StatusCode::OK {
             let response_string = response.text().await.expect("Could not convert to text");
             let weather_data: WeatherData = serde_json::from_str(&response_string)
@@ -72,14 +71,13 @@ async fn fetch_data_weather_api(city: &str) -> Result<WeatherData, String> {
         "http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units=metric",
         city, api_key
     );
-    println!("Hello!");
     let response = reqwest::get(&url)
         .await
         .expect("WeatherRepository: Failed to get response from GET Request")
         .text()
         .await
         .expect("WeatherRepository: Failed to convert to text");
-    println!("WeatherDataFromRepository: {}", response);
+    //println!("WeatherDataFromRepository: {}", response);
     let weather_data: WeatherData =
         serde_json::from_str(&response).expect("WeatherRepository: Failed to deserialize response");
 

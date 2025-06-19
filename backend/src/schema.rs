@@ -5,7 +5,7 @@ diesel::table! {
         logs_id -> Uuid,
         trace_id -> Text,
         func_call -> Text,
-        timestamp -> Timestamp,
+        created_at -> Timestamp,
         status -> Text,
         location -> Nullable<Text>,
         error_message -> Nullable<Text>,

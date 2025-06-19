@@ -52,7 +52,7 @@ pub struct MyError;
 
 #[derive(Debug, Deserialize, Serialize, Default)]
 pub struct Claims {
-    sub: String,
+    pub sub: String,
     iss: String,
     aud: Vec<String>,
     exp: usize,
@@ -71,13 +71,16 @@ impl<'r> FromRequest<'r> for User {
 
     async fn from_request(req: &'r Request<'_>) -> Outcome<Self, ()> {
         let jar = req.cookies();
-        println!("From request started again");
+        //println!("From request started again");
 
         if let Some(cookie) = jar.get_private("access_token") {
             let jwt_from_auth0_callback = cookie.value();
-            println!("JWT from auth0: {}", jwt_from_auth0_callback);
+            //println!("JWT from auth0: {}", jwt_from_auth0_callback);
             match validate_token(&jwt_from_auth0_callback).await {
-                Ok(claims) => Outcome::Success(User(claims)),
+                Ok(claims) => {
+                    req.local_cache(|| claims.sub.clone());
+                    Outcome::Success(User(claims))
+                }
                 Err(_) => Outcome::Forward(Status::Unauthorized),
             }
         } else {
@@ -87,8 +90,8 @@ impl<'r> FromRequest<'r> for User {
 }
 
 pub async fn validate_token(access_token: &str) -> Result<Claims, String> {
-    println!("Validation started");
-    println!("Access token from validate_token: {}", access_token);
+    //println!("Validation started");
+    //println!("Access token from validate_token: {}", access_token);
     //println!("Token is: {}", token);
     dotenv::dotenv().ok();
     let kid: String = decode_header(&access_token)
@@ -108,19 +111,19 @@ pub async fn validate_token(access_token: &str) -> Result<Claims, String> {
 
     let audience = env::var("AUDIENCE").expect("Cannot get auth0 audience");
     let audience_url = format!("https://{}", audience);
-    println!("audience: {}", audience_url);
+    //println!("audience: {}", audience_url);
     validation.set_audience(&[audience]);
 
     let auth0_domain = env::var("AUTH0_DOMAIN").expect("Cannot get auth0 DOMAIN");
     let iss: HashSet<String> = HashSet::from([format!("https://{}/", auth0_domain)]);
-    println!("audience: {:?}", iss);
+    //println!("audience: {:?}", iss);
     validation.iss = Some(iss);
-    println!("Validaton: {:?}", validation);
+    //println!("Validaton: {:?}", validation);
     let claims: Claims = decode::<Claims>(access_token, &public_key, &validation)
         .expect("Error validating JWT")
         .claims;
 
-    println!("CLaims {:?}", claims);
+    //println!("CLaims {:?}", claims);
     // TODO()
     // Give the concrete custom claims inside the payload.
     Ok(claims)
@@ -132,7 +135,7 @@ pub async fn validate_token(access_token: &str) -> Result<Claims, String> {
 async fn get_concrete_web_key(kid: String) -> Option<JsonWebKey> {
     dotenv::dotenv().ok();
     let tenant = env::var("AUTH0_DOMAIN").expect("Cannot get Tenant");
-    println!("Tenant: {}", tenant);
+    //println!("Tenant: {}", tenant);
     let url = format!("https://{}/.well-known/jwks.json", tenant);
 
     let jwks_vec: VecJsonWebKey = reqwest::get(url)
@@ -152,8 +155,8 @@ async fn get_concrete_web_key(kid: String) -> Option<JsonWebKey> {
 
 #[get("/private")]
 pub fn get_user_claim(user: User) {
-    println!("Hello, {}", user.0.sub);
-    println!("User role: {:?}", user.0.user_type);
+    //println!("Hello, {}", user.0.sub);
+    //println!("User role: {:?}", user.0.user_type);
 }
 
 pub async fn get_access_token(decoded_jwe: &str) -> Result<String, String> {
@@ -184,7 +187,7 @@ pub async fn get_access_token(decoded_jwe: &str) -> Result<String, String> {
         audience: audience.as_str(),
         redirect_uri: redirect_uri.as_str(),
     };
-    println!("Code: {}", decoded_jwe);
+   // println!("Code: {}", decoded_jwe);
     let request = client
         .request(
             reqwest::Method::POST,
@@ -221,7 +224,7 @@ impl<'r> FromRequest<'r> for UserProfile {
     async fn from_request(req: &'r Request<'_>) -> Outcome<Self, ()> {
         let jar = req.cookies();
         //println!("From request started again");
-        println!("UserProfile Guard");
+        //println!("UserProfile Guard");
         if let Some(cookie) = jar.get_private("access_token") {
             let jwt_from_auth0_callback = cookie.value();
             //println!("JWT from auth0: {}", jwt_from_auth0_callback);
@@ -269,7 +272,7 @@ pub async fn get_user_info(access_token: &str) -> Result<Profile, String> {
 
 #[get("/whoami")]
 pub async fn who_am_i(user_profile: UserProfile) -> Json<Profile> {
-    println!("Times called");
+    //println!("Times called");
     Json(user_profile.0)
 }
 

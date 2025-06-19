@@ -38,8 +38,8 @@ pub fn callback(
     jar: &CookieJar<'_>,
 ) -> Result<Redirect, String> {
     //println!("Callback: {:?}", jar);
-    println!("Code from callback: {}", code);
-    println!("Token from callback: {}", token.access_token());
+    //println!("Code from callback: {}", code);
+    //println!("Token from callback: {}", token.access_token());
     jar.add_private(
         Cookie::build(("access_token", token.access_token().to_owned()))
             .path("/")
@@ -58,7 +58,7 @@ pub fn api_token(jar: &CookieJar<'_>) -> Result<Json<String>, Status> {
         .map(|c| c.value().to_string())
         .ok_or(Status::Unauthorized)?;
 
-    println!("Token: {:?}", token);
+    //println!("Token: {:?}", token);
 
     //let decoded = decode_only(&token).expect("Failed to decode JWT");
 
@@ -71,9 +71,9 @@ pub fn api_token(jar: &CookieJar<'_>) -> Result<Json<String>, Status> {
 pub fn logout(jar: &CookieJar<'_>) -> Redirect{
     dotenv::dotenv().ok();
 
-    println!("Removing cookie");
+    //println!("Removing cookie");
     jar.remove_private(Cookie::from("access_token"));
-    println!("Cookie removed");
+    //println!("Cookie removed");
     let auth0_domain = env::var("AUTH0_DOMAIN").expect("Cannot get auth0 domain");
     let client_id = env::var("CLIENT_ID").expect("Cannot get CLIENT ID");
     let return_to = format!("http://127.0.0.1:8001");
