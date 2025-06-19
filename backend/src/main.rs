@@ -1,6 +1,7 @@
 use std::env;
 
 use diesel::{Connection, PgConnection};
+use repositories::api_logs_repository::{self, ApiLogsRepository};
 use rocket_oauth2::OAuth2;
 use rocket_routes::{api_logs_route, weather_route::ApiDoc};
 use rocket_sync_db_pools::database;
@@ -64,6 +65,7 @@ async fn main() -> Result<(), rocket::Error> {
         )
         .attach(OAuth2::<auth0::auth0::Auth0>::fairing("auth0"))
         .attach(DbConnection::fairing())
+        .attach(api_logs_repository::ApiLogger)
         .launch()
         .await?;
     Ok(())

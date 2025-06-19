@@ -18,15 +18,16 @@ pub struct ApiLogs{
     pub logs_id: Uuid,
     pub trace_id: String,
     pub func_call: String,
-    pub timestamp: NaiveDateTime,
+    pub created_at: NaiveDateTime,
     pub status: String,
     pub location: Option<String>,
     pub error_message: Option<String>,
 }
 
-#[derive(Insertable)]
+#[derive(Insertable, Debug)]
 #[table_name="api_logs"]
 pub struct NewApiLogs{
+    pub trace_id: String,
     pub func_call: String,
     pub status: String,
     pub location: Option<String>,
