@@ -166,7 +166,6 @@ dependencies = [
  "diesel",
  "dotenv",
  "jsonwebtoken",
- "jwks_client_rs",
  "lazy_static",
  "percent-encoding",
  "redis",
@@ -740,17 +739,16 @@ dependencies = [
  "chrono",
  "gloo 0.11.0",
  "gloo-net 0.6.0",
+ "gloo-timers 0.3.0",
  "reqwasm",
  "serde",
  "serde_json",
  "shared",
- "time",
  "uuid",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
  "yew",
- "yew-notifications",
  "yew-router",
 ]
 
@@ -1877,24 +1875,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "jwks_client_rs"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0f7ab6f30de9be5b3f9a2cebcd53288f3073963fc1315789791d1c7b17ecead7"
-dependencies = [
- "async-trait",
- "chrono",
- "jsonwebtoken",
- "reqwest",
- "serde",
- "serde_json",
- "thiserror 1.0.69",
- "tokio",
- "tracing",
- "url",
-]
-
-[[package]]
 name = "lazy_static"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2099,15 +2079,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4161fcb6d602d4d2081af7c3a45852d875a03dd337a6bfdd6e06407b61342a43"
 dependencies = [
  "hermit-abi 0.3.9",
- "libc",
-]
-
-[[package]]
-name = "num_threads"
-version = "0.1.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5c7398b9c8b70908f6371f47ed36737907c87c52af34c268fed0bf0ceb92ead9"
-dependencies = [
  "libc",
 ]
 
@@ -3458,10 +3429,7 @@ checksum = "8a7619e19bc266e0f9c5e6686659d394bc57973859340060a69221e57dbc0c40"
 dependencies = [
  "deranged",
  "itoa",
- "js-sys",
- "libc",
  "num-conv",
- "num_threads",
  "powerfmt",
  "serde",
  "time-core",
@@ -4410,19 +4378,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.100",
-]
-
-[[package]]
-name = "yew-notifications"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6977080b0b818fc0446747eaac72e1ce04987262efe3eb4f0de7a549b7a43dec"
-dependencies = [
- "gloo 0.11.0",
- "log",
- "time",
- "uuid",
- "yew",
 ]
 
 [[package]]

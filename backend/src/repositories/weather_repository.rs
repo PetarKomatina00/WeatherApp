@@ -4,9 +4,7 @@ use std::env;
 
 use crate::redis_utility::utility::Utility;
 use reqwest::StatusCode;
-use rocket::response::status::NotFound;
 use shared::WeatherData;
-use utoipa::{self, OpenApi, ToSchema};
 
 pub struct WeatherRepository;
 
@@ -61,7 +59,7 @@ impl WeatherRepository {
     }
 }
 
-async fn fetch_data_weather_api(city: &str) -> Result<WeatherData, String> {
+async fn _fetch_data_weather_api(city: &str) -> Result<WeatherData, String> {
     println!("Fetching data started...");
     dotenv::dotenv().ok();
 

@@ -1,5 +1,5 @@
-use gloo::console::log;
-use web_sys::{console::log, HtmlInputElement};
+
+use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
 use crate::api::api::ButtonContent;

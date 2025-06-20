@@ -1,14 +1,12 @@
-use gloo::{console::log, dialogs::prompt};
+use gloo::console::log;
 use gloo_net::http::Request;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 
 #[function_component(UserInfo)]
 pub fn get_user_info() -> Html {
-    let local_storage = web_sys::window().unwrap().local_storage().unwrap().unwrap();
-    let cookie = local_storage.get_item("access_token").unwrap();
     let onclick = {
-        Callback::from(move |e: MouseEvent| {
+        Callback::from(move |_e: MouseEvent| {
             log!("onclick called");
             spawn_local(async move {
                 let resp = Request::get(&format!("http://127.0.0.1:8000/private"))

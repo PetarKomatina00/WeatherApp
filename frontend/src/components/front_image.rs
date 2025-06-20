@@ -1,17 +1,7 @@
-use std::{fmt::format, rc::Rc};
-
-use gloo::console::log;
-use web_sys::{
-    js_sys::{
-        Math::{self, random},
-        Reflect::get,
-    },
-    window,
-};
+use std::rc::Rc;
 use yew::prelude::*;
 
 use crate::{api::api::ButtonContent, assets::utility, components::input_button::InputButton};
-use wasm_bindgen::prelude::*;
 
 #[derive(Properties, PartialEq)]
 pub struct Props {

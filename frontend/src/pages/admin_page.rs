@@ -1,23 +1,12 @@
-use chrono::NaiveDateTime;
+
 use gloo::console::log;
 use gloo_net::http::Request;
-use serde::Deserialize;
-use uuid::Uuid;
+use gloo_timers::callback::Timeout;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use yew_router::hooks::use_navigator;
 
-use crate::{assets::utility::Route, components::spinner::Spinner};
-#[derive(Debug, Deserialize)]
-pub struct ApiLogs {
-    pub logs_id: Uuid,
-    pub trace_id: String,
-    pub func_call: String,
-    pub created_at: NaiveDateTime,
-    pub status: String,
-    pub location: Option<String>,
-    pub error_message: Option<String>,
-}
+use crate::{assets::utility::Route, components::spinner::Spinner, models::ApiLogs};
 
 #[function_component(AdminPage)]
 pub fn admin_page() -> Html {
@@ -25,17 +14,23 @@ pub fn admin_page() -> Html {
     let api_logs: UseStateHandle<Vec<ApiLogs>> = use_state(|| Vec::new());
 
     let api_logs_handle = api_logs.clone();
-    let api_logs_cleanup = api_logs.clone();
 
     let is_loading = use_state(|| false);
     let is_loading_handle = is_loading.clone();
+
+    let took_to_long = use_state(|| false);
+    let took_to_long_handle = took_to_long.clone();
     use_effect_with((), move |_| {
         let api_logs_handle = api_logs_handle.clone();
         let is_loading_handle = is_loading_handle.clone();
+
+        let timeout = Timeout::new(10_000, move || {
+            took_to_long_handle.set(true);
+        });
+
         spawn_local(async move {
             let api_logs_handle = api_logs_handle.clone();
-            //let is_loading_handle = is_loading_handle.clone();\
-
+            let is_loading_handle = is_loading_handle.clone();
             is_loading_handle.set(true);
             let url = format!("http://127.0.0.1:8000/api/logs?limit=10");
             let response = Request::get(&url)
@@ -45,18 +40,16 @@ pub fn admin_page() -> Html {
 
             match response {
                 Ok(r) if r.ok() => {
-                    is_loading_handle.set(false);
                     let api_logs: Vec<ApiLogs> =
                         r.json().await.expect("Cannot convert JSON to Apilogs");
                     api_logs_handle.set(api_logs);
                     log!("Everything is set");
+                    is_loading_handle.set(false);
                 }
                 _ => {}
             }
         });
-        move || {
-            api_logs_cleanup.set(Vec::new());
-        }
+        || drop(timeout)
     });
 
     let move_to_home = Callback::from(move |_| {
@@ -66,10 +59,20 @@ pub fn admin_page() -> Html {
     html! {
         <>
         if *is_loading{
+            if *took_to_long{
+                <div class="empty-state">
+                    <strong>{ "No results yet." }</strong>
+                    <p>{ "Looks like there's nothing here. Try adjusting your filters or check back later." }</p>
+                </div>
+            }
+            else{
+
+            }
             <Spinner/>
         }
-            if !api_logs.is_empty(){
-                <button class="apple-button" id="admin-button" onclick = {move_to_home}>{"Back to home"}</button>
+        else{
+             if !api_logs.is_empty(){
+                <button class="apple-button mt-2 mb-2" id="admin-button" onclick = {move_to_home}>{"Back to home"}</button>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
                         <thead class="table-dark">
@@ -97,17 +100,8 @@ pub fn admin_page() -> Html {
                     </table>
                 </div>
             }
-            else{
-                {"asdasdsad"}
-            }
+        }
+
         </>
     }
 }
-
-/*    pub logs_id: Uuid,
-pub trace_id: String,
-pub func_call: String,
-pub created_at: NaiveDateTime,
-pub status: String,
-pub location: Option<String>,
-pub error_message: Option<String>, */

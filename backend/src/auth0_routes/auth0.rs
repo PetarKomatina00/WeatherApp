@@ -1,12 +1,7 @@
 use std::env;
 
-use rocket::{
-    futures::FutureExt, http::{Cookie, CookieJar, SameSite, Status}, response::Redirect, serde::json::Json
-};
+use rocket::{http::{Cookie, CookieJar, SameSite, Status}, response::Redirect, serde::json::Json};
 use rocket_oauth2::{OAuth2, TokenResponse};
-
-use crate::jwt::jwt_utility::User;
-
 pub struct Auth0;
 
 #[get("/login")]

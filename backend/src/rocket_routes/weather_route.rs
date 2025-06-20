@@ -1,16 +1,11 @@
 use std::env;
-
-use diesel::{Connection, PgConnection};
-use rocket::{http::Status, serde::json::Json};
-use crate::{models::NewApiLogs, repositories::api_logs_repository::ApiLogsRepository};
+use rocket::serde::json::Json;
 use serde::Deserialize;
 //use crate::models::weather::WeatherData;
 use shared::WeatherData;
 use utoipa::OpenApi;
 
-use crate::{
-    jwt::jwt_utility, models::UserInfo, repositories::weather_repository::WeatherRepository,
-};
+use crate::{jwt::{jwt_guards::User, jwt_utility}, models::UserInfo, repositories::weather_repository::WeatherRepository};
 // use crate::models::weather::WeatherData;
 
 #[derive(Deserialize, Debug)]
@@ -34,7 +29,7 @@ struct TokenResponse {
     tag = "Get Operation"
 )]
 #[get("/fetch/<city>")]
-pub async fn get_weather_api(user: jwt_utility::User, city: String) -> Json<WeatherData> {
+pub async fn get_weather_api(_user: User, city: String) -> Json<WeatherData> {
     let weather_data = WeatherRepository::get_city_weather_by_name(&city)
         .await
         .unwrap();
