@@ -1,4 +1,4 @@
-use crate::components::login::{Auth0Action, LoginButton};
+use crate::components::login_button::{Auth0Action, LoginButton};
 use yew::{classes, function_component, html, Callback, Html, Properties};
 
 #[derive(Properties, PartialEq)]

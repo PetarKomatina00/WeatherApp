@@ -1,5 +1,5 @@
 use crate::pages::home::Home;
-use components::login::LoginButton;
+use assets::utility::{switch, Route};
 use gloo::console::log;
 use gloo_net::http::{Request, Response};
 use shared::WeatherData;
@@ -8,6 +8,7 @@ use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::{console, HtmlInputElement, Text};
 use yew::prelude::*;
+use yew_router::prelude::*;
 mod api;
 mod assets;
 mod components;
@@ -17,7 +18,9 @@ mod pages;
 fn App() -> Html {
     html! {
     <>
-        <Home/>
+    <BrowserRouter>
+        <Switch<Route> render = {switch}/>
+    </BrowserRouter>
     </>
     }
 }

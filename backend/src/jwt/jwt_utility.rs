@@ -78,6 +78,7 @@ impl<'r> FromRequest<'r> for User {
             //println!("JWT from auth0: {}", jwt_from_auth0_callback);
             match validate_token(&jwt_from_auth0_callback).await {
                 Ok(claims) => {
+                    println!("Woohoo");
                     req.local_cache(|| claims.sub.clone());
                     Outcome::Success(User(claims))
                 }
@@ -153,10 +154,12 @@ async fn get_concrete_web_key(kid: String) -> Option<JsonWebKey> {
     None
 }
 
-#[get("/private")]
-pub fn get_user_claim(user: User) {
+#[get("/get/user/claim")]
+pub fn get_user_claim(user: User) -> Json<Claims>{
     //println!("Hello, {}", user.0.sub);
     //println!("User role: {:?}", user.0.user_type);
+    println!("Super duper");
+    Json(user.0)
 }
 
 pub async fn get_access_token(decoded_jwe: &str) -> Result<String, String> {
