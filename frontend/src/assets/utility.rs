@@ -1,4 +1,15 @@
 use web_sys::{js_sys::Math, window};
+use yew::prelude::*;
+use yew_router::Routable;
+
+use crate::pages::{admin_page::AdminPage, home::Home};
+#[derive(Clone, Routable, PartialEq)]
+pub enum Route {
+    #[at("/")]
+    Home,
+    #[at("/admin")]
+    AdminPage,
+}
 
 const IMAGES321PX: &[&str] = &[
     "https://www.awxcdn.com/adc-assets/images/hero/1/375x450.jpg",
@@ -64,4 +75,11 @@ pub fn get_image_related_to_width() -> &'static [&'static str] {
 }
 pub fn get_random_int(number: f64) -> usize {
     Math::floor(Math::random() * number) as usize
+}
+
+pub fn switch(routes: Route) -> Html {
+    match routes {
+        Route::Home => html! {<Home/>},
+        Route::AdminPage => html! {<AdminPage/>},
+    }
 }
