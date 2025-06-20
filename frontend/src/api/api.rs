@@ -1,13 +1,4 @@
-use gloo::{
-    console::log,
-    dialogs::{alert, prompt},
-};
 use gloo_net::http::{Request, Response};
-use serde::Deserialize;
-use shared::WeatherData;
-use web_sys::console::log;
-use yew::prelude::*;
-
 pub enum FetchError {
     Unauthorized,
 }
@@ -29,7 +20,7 @@ pub async fn fetch_weather_data(data: &ButtonContent) -> Result<Response, FetchE
     //     alert("The user needs to be authenticated!");
     //     FetchError::Unauthorized
     // }
-    println!("Response is: {:?}", response);
+    //println!("Response is: {:?}", response);
     match response.status() {
         200..=299 => Ok(response),
         _ => Err(FetchError::Unauthorized),

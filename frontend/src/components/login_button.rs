@@ -1,6 +1,4 @@
 use gloo::console::log;
-use gloo_net::http::Request;
-use wasm_bindgen_futures::spawn_local;
 use web_sys::window;
 use yew::prelude::*;
 

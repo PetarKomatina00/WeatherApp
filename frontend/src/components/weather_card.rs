@@ -2,7 +2,7 @@ use shared::WeatherData;
 use yew::html;
 use yew::{function_component, Html, Properties};
 
-use chrono::{Local, TimeZone, Utc};
+use chrono::{Local, TimeZone};
 #[derive(Properties, PartialEq)]
 pub struct Props {
     pub weather_data: WeatherData,
