@@ -18,12 +18,12 @@ use yew_router::hooks::use_navigator;
 #[function_component(Home)]
 pub fn home() -> Html {
     let navigator = use_navigator().unwrap();
+    let input_value = use_state(|| String::new());
     let weather_data = use_state(|| WeatherData::default());
     let is_login_modal_open = use_state(|| false);
     let user_profile: UseStateHandle<Option<Profile>> = use_state(|| None::<Profile>);
     let is_logged_in = use_state(|| false);
-
-
+    
     let is_logged_in_handle = is_logged_in.clone();
     let user_profile_handle = user_profile.clone();
     let is_admin_logged = use_state(|| false);
@@ -74,20 +74,26 @@ pub fn home() -> Html {
         });
         || ()
     });
+
+    let input_value_handle = input_value.clone();
     let is_loading_handle = is_loading.clone();
     let on_submit: Callback<ButtonContent> = {
         let weather_data_handle = weather_data.clone(); // keep one handle in the closure’s env
         let is_login_modal_open_handle = is_login_modal_open.clone();
         let is_loading_handle = is_loading_handle.clone();
+        let input_value_handle = input_value_handle.clone();
         Callback::from(move |btn: ButtonContent| {
             let state = weather_data_handle.clone(); // clone for this invocation
             let is_login_modal_open = is_login_modal_open_handle.clone();
             let is_loading_handle = is_loading_handle.clone();
+            let input_value_handle = input_value_handle.clone();
             spawn_local(async move {
                 is_loading_handle.set(true);
+                println!("Content: {}", btn.content);
                 match fetch_weather_data(&btn).await {
                     Ok(resp) => {
                         //log!(&format!("Response: {:?}", resp));
+                        input_value_handle.set(btn.content);
                         is_loading_handle.set(false);
                         if let Ok(parsed) = resp.json::<WeatherData>().await {
                             is_login_modal_open.set(false);
@@ -110,6 +116,9 @@ pub fn home() -> Html {
     let data = (*weather_data).clone();
     html! {
     <>
+    if !input_value.is_empty(){
+        {(*input_value).clone()}
+    }
         <nav class="navbar navbar-expand-md navbar-light bg-light px-3">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
                 aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -147,7 +156,7 @@ pub fn home() -> Html {
             }/>
         }
         <div class="background-image-section">
-            <FrontImage data = {on_submit}/>
+            <FrontImage data = {on_submit} />
             if data != WeatherData::default(){
                 <WeatherCard weather_data = {data}/>
             }

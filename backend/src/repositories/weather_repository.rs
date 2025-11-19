@@ -20,7 +20,8 @@ impl WeatherRepository {
             return Ok(weather_data);
         } else {
             println!("Fetching data...");
-            weather_data = Self::fetch_data_weather_api(&city).await.unwrap();
+            weather_data = Self::fetch_data_weather_api(&city)
+                .await?;
 
             println!("Storing data in redis...");
             Utility::store_data_in_redis(&weather_data).await;

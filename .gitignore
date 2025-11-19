@@ -26,4 +26,6 @@ Thumbs.db
 # Log files
 *.log
 
+.pp
+
 Cargo.lock

@@ -28,3 +28,10 @@ pub struct ApiLogs {
     pub location: Option<String>,
     pub error_message: Option<String>,
 }
+
+
+#[derive(Deserialize, Debug)]
+pub struct GeoResult{
+    pub lat: String,
+    pub lon: String,
+}
