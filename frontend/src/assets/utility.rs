@@ -1,8 +1,11 @@
+use gloo::net::http::Headers;
+use gloo_net::http::Request;
+use wasm_bindgen_futures::spawn_local;
 use web_sys::{js_sys::Math, window};
 use yew::prelude::*;
 use yew_router::Routable;
 
-use crate::pages::{admin_page::AdminPage, home::Home};
+use crate::{models::GeoResult, pages::{admin_page::AdminPage, home::Home}};
 #[derive(Clone, Routable, PartialEq)]
 pub enum Route {
     #[at("/")]

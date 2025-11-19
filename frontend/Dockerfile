@@ -1,6 +1,8 @@
-FROM rust:latest
+FROM rust:1.90-slim-bookworm AS builder
 
 WORKDIR /app
+
+RUN rustup target add wasm32-unknown-unknown && cargo install trunk
 
 COPY . . 
 
@@ -8,7 +10,12 @@ COPY ../shared /app/shared
 
 WORKDIR /app/frontend
 
-RUN rustup default && rustup target add wasm32-unknown-unknown && cargo install trunk 
+RUN trunk build --release
 
-ENV TRUNK_WATCH_USE_POLLING=true
-CMD ["trunk", "serve","--address", "0.0.0.0", "--port", "8001"]
+FROM nginx:alpine
+
+COPY --from=builder /app/frontend/dist /usr/share/nginx/html
+
+EXPOSE 8001
+
+CMD ["nginx", "-g", "daemon off;"]

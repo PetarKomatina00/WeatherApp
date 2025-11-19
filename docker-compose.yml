@@ -5,24 +5,23 @@ services:
       dockerfile: backend/Dockerfile 
     volumes:
       - ./shared:/app/shared
-      - ./backend:/app/backend
     ports:
       - 8000:8000
     env_file:
       - /backend/.env
     environment: 
       - ROCKET_DATABASES={postgres={url=postgres://postgres:password@postgres:5432/weather_app_db}}
-  # frontend:
-  #   build: 
-  #     context: .
-  #     dockerfile: frontend/Dockerfile 
-  #   volumes:
-  #     - ./shared:/app/shared 
-  #     - ./frontend:/app/frontend
-  #   ports:
-  #     - "8001:8001"
-  #   environment:
-  #     - TRUNK_WATCH_USE_POLLING=true
+  frontend:
+    build: 
+      context: .
+      dockerfile: frontend/Dockerfile 
+    volumes:
+      - ./shared:/app/shared  
+      - ./frontend:/app/frontend
+    ports:
+      - "8001:80"
+    environment:
+      - TRUNK_WATCH_USE_POLLING=true
   postgres:
     image: postgres:latest
     environment:
