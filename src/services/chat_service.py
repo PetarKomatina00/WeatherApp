@@ -37,3 +37,13 @@ class ChatService:
         self.add_message("assistant", answer)
 
         return answer
+    def ask_get_chunk_data(self, question: str, system=None, temperature = 0.2) -> str:
+
+        self.add_message("user", question)
+        with client.messages.stream(
+            model = ANTHROPIC_MODEL,
+            max_tokens=1024,
+            messages=self.message_history
+        ) as stream:
+            for text in stream.text_stream:
+                print(text, end="")
