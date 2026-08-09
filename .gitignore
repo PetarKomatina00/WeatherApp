@@ -216,6 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+<<<<<<< HEAD
 
 .venv/
 .env
@@ -225,3 +226,5 @@ __pycache__/
 prezentacije
 /prezentacije/
 prezentacije/
+=======
+>>>>>>> 322edd0defb3a29986e01cba1961f3ed73f670b8
