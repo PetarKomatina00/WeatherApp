@@ -17,13 +17,14 @@ class ChatService:
             "content": text,
         })
 
-    def ask(self, question: str, system=None) -> str:
+    def ask(self, question: str, system=None, temperature = 0.2) -> str:
 
         params = {
             "model" : ANTHROPIC_MODEL,
             "max_tokens" : 1024,
             "messages" : self.message_history,
-            "system" : self.system
+            "temperature" : temperature,
+            "system" : self.system,
         }
         if system:
             params["system"] = system
