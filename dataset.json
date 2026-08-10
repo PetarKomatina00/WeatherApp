@@ -1,0 +1,32 @@
+[
+  {
+    "task": "Should the user go camping today?",
+    "weather": {
+      "temperature": 22,
+      "rain_probability": 10,
+      "wind_speed": 8,
+      "humidity": 55,
+      "condition": "Partly cloudy"
+    }
+  },
+  {
+    "task": "Should the user go camping today?",
+    "weather": {
+      "temperature": 3,
+      "rain_probability": 80,
+      "wind_speed": 45,
+      "humidity": 90,
+      "condition": "Heavy rain and strong winds"
+    }
+  },
+  {
+    "task": "Should the user go camping today?",
+    "weather": {
+      "temperature": 17,
+      "rain_probability": 35,
+      "wind_speed": 20,
+      "humidity": 70,
+      "condition": "Overcast with light showers"
+    }
+  }
+]
