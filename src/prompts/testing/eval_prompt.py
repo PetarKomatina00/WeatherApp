@@ -16,6 +16,11 @@ def get_eval_prompt(test_case, output):
 
         {output}
 
+        Criteria you should use to evaluate the solution:
+        <criteria>
+        {test_case["solution_criteria"]}
+        </criteria>
+
 
         Evaluation Criteria:
         Evaluate whether the proposed recommendation correctly determines if the weather and conditions are suitable and safe for camping.

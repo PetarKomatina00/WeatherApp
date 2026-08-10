@@ -25,7 +25,8 @@ DATASET_GENERATION_PROMPT = """
                     "wind_speed": 8,
                     "humidity": 55,
                     "condition": "Partly cloudy"
-                }
+                },
+                "solution_criteria": "Key criteria for evaluating the solution"
             },
             ...additional
         ]

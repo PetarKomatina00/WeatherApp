@@ -2,31 +2,37 @@
   {
     "task": "Should the user go camping today?",
     "weather": {
-      "temperature": 22,
-      "rain_probability": 10,
-      "wind_speed": 8,
-      "humidity": 55,
-      "condition": "Partly cloudy"
-    }
+      "temperature": 34,
+      "feels_like": 38,
+      "rain_probability": 5,
+      "wind_speed": 6,
+      "humidity": 80,
+      "condition": "Clear sky"
+    },
+    "solution_criteria": "AI should advise against camping due to extreme heat and very high humidity, which pose health risks such as heat exhaustion. Should recommend early morning or evening activity only if camping is necessary."
   },
   {
     "task": "Should the user go camping today?",
     "weather": {
-      "temperature": 3,
-      "rain_probability": 80,
-      "wind_speed": 45,
+      "temperature": 18,
+      "feels_like": 16,
+      "rain_probability": 75,
+      "wind_speed": 35,
       "humidity": 90,
-      "condition": "Heavy rain and strong winds"
-    }
+      "condition": "Thunderstorm expected"
+    },
+    "solution_criteria": "AI should strongly advise against camping due to high rain probability, strong winds, and thunderstorm conditions. Should highlight safety risks including lightning and flooding."
   },
   {
     "task": "Should the user go camping today?",
     "weather": {
-      "temperature": 17,
-      "rain_probability": 35,
-      "wind_speed": 20,
-      "humidity": 70,
-      "condition": "Overcast with light showers"
-    }
+      "temperature": 21,
+      "feels_like": 20,
+      "rain_probability": 15,
+      "wind_speed": 12,
+      "humidity": 50,
+      "condition": "Partly cloudy"
+    },
+    "solution_criteria": "AI should recommend camping as conditions are favorable. Temperature is comfortable, wind is mild, rain probability is low, and humidity is moderate. Should suggest bringing a light rain layer as a precaution."
   }
 ]
