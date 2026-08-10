@@ -20,6 +20,7 @@ DATASET_GENERATION_PROMPT = """
                 "task": "Should the user go camping today?",
                 "weather": {
                     "temperature": 22,
+                    "feels_like": 21,
                     "rain_probability": 10,
                     "wind_speed": 8,
                     "humidity": 55,
