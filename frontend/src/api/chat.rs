@@ -1,7 +1,7 @@
 use reqwasm::http::Request;
 use web_sys::RequestCredentials;
 
-use crate::models::{AskResponse, AskRequest};
+use shared::{AskRequest, AskResponse};
 
 pub async fn send_chat_message(question: &str) -> Result<AskResponse, reqwasm::Error> {
     let request = AskRequest{
@@ -11,7 +11,7 @@ pub async fn send_chat_message(question: &str) -> Result<AskResponse, reqwasm::E
     let body = serde_json::to_string(&request);
     match body{
         Ok(body) => {
-            let response = Request::post("http://0.0.0.0:8000/api/chat")
+            let response = Request::post("http://0.0.0.0:8000/ask-claude")
             .header("Content-Type", "application/json")
             .header("Accept", "application/json")
             .credentials(RequestCredentials::Include)

@@ -92,3 +92,4 @@ pub struct Profile {
     pub given_name: String,
     pub email_verified: bool,
 }
+
