@@ -8,6 +8,8 @@ use rocket_sync_db_pools::database;
 use utoipa::OpenApi;
 
 use utoipa_swagger_ui::SwaggerUi;
+
+use crate::repositories::claude_repository::ClaudeRepository;
 #[macro_use]
 extern crate rocket;
 
@@ -51,6 +53,10 @@ async fn main() -> Result<(), rocket::Error> {
             "/",
             SwaggerUi::new("/swagger-ui/<_..>").url("/api-docs/openapi.json", ApiDoc::openapi()),
         )
+        .mount("/ask-claude", routes![
+            rocket_routes::claude_route::chat
+        ])
+        .manage(ClaudeRepository)
         .mount(
             "/auth0",
             routes![

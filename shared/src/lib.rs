@@ -77,3 +77,13 @@ impl Default for WeatherData {
         }
     }
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AskRequest {
+    pub question: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AskResponse {
+    pub answer: String,
+}
