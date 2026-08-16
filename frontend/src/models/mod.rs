@@ -1,5 +1,5 @@
 use chrono::NaiveDateTime;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 #[derive(Deserialize, Debug)]
@@ -34,4 +34,26 @@ pub struct ApiLogs {
 pub struct GeoResult{
     pub lat: String,
     pub lon: String,
+}
+
+#[derive(Clone, PartialEq)]
+pub enum MessageRole{
+    User,
+    Assistant
+}
+
+#[derive(Clone, PartialEq)]
+pub struct ChatMessage{
+    pub role: MessageRole,
+    pub content: String,
+}
+
+#[derive(Serialize)]
+pub struct AskRequest{
+    pub question: String
+}
+
+#[derive(Deserialize)]
+pub struct AskResponse{
+    pub answer: String
 }

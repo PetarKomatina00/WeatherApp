@@ -2,7 +2,7 @@ FROM rust:1.90-slim-bookworm AS builder
 
 WORKDIR /app
 
-RUN rustup target add wasm32-unknown-unknown && cargo install trunk
+RUN rustup target add wasm32-unknown-unknown && cargo install trunk --version 0.21.14 --locked
 
 COPY . . 
 
