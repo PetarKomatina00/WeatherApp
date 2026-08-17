@@ -1,23 +1,34 @@
+use gloo_timers::callback::Timeout;
 use wasm_bindgen::JsValue;
+use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
-use yew::{Callback, Html, InputEvent, TargetCast, function_component, html, use_state};
-
+use yew::{Callback, Html, InputEvent, TargetCast, function_component, html, use_effect_with, use_mut_ref, use_state};
 #[function_component(ChatWindow)]
 pub fn chat_window() -> Html{
 
     let question = use_state(String::new);
     let response = use_state(String::new);
     let is_loading = use_state(|| false);
+    let debouncer_timer = use_mut_ref(|| None::<Timeout>);
 
     let on_input = {
+        let debouncer_timer = debouncer_timer.clone();
         let question = question.clone();
         Callback::from(move |event: InputEvent| {
-            let input: HtmlInputElement = event.target_unchecked_into();
-            question.set(input.value());
+            let question = question.clone();
+            let timeout = Timeout::new(500, move || {
+                let input: HtmlInputElement = event.target_unchecked_into();
+                question.set(input.value());
+                web_sys::console::log_1(&JsValue::from_str(&(input.value()).to_string()));
+            });
+            *debouncer_timer.borrow_mut() = Some(timeout);
+
         })
     };
 
-    web_sys::console::log_1(&JsValue::from_str(&(*question).to_string()));
+    //
+
+
 
 
 
