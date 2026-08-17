@@ -1,6 +1,8 @@
 use std::env;
 use reqwest::{Error, Response, StatusCode};
 use shared::{AskRequest, AskResponse};
+
+use crate::models::ClaudeRequest;
 pub struct ClaudeRepository{
     client: reqwest::Client,
     python_api_url: String
@@ -15,15 +17,15 @@ impl ClaudeRepository{
     }
 
 
-    pub async fn ask_claude(&self, request: &AskRequest) -> Result<AskResponse, String> {
+    pub async fn ask_claude(&self, claude_request: &ClaudeRequest) -> Result<AskResponse, String> {
 
         println!("Starting in repository");
         let url = format!("{}/ask-claude", self.python_api_url);
 
         let response_result = self
-        .client.post(url).json(request).send()
+        .client.post(url).json(claude_request).send()
         .await.map_err(|e| {
-            eprintln!("Failed to send request: {e:?}");
+            eprintln!("Failed to send request to Claude: {e:?}");
             e
         });
 

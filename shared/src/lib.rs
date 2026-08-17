@@ -80,7 +80,6 @@ impl Default for WeatherData {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AskRequest {
-    pub conversation_id: String,
     pub question: String,
 }
 
