@@ -83,7 +83,7 @@ pub struct AskRequest {
     pub question: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct AskResponse {
     pub answer: String,
 }
