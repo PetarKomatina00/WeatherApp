@@ -38,25 +38,24 @@ pub fn establish_connection() -> PgConnection {
 async fn main() -> Result<(), rocket::Error> {
     let _city_name = String::from("Barcelona");
     let cors: rocket_cors::Cors = config_cors::cors::cors().expect("Cannot create CORS");
-    let _ = rocket::build()
+    let rocket  = rocket::build()
         .attach(cors)
         .attach(OAuth2::<auth0_routes::auth0::Auth0>::fairing("auth0"))
         .attach(DbConnection::fairing())
         .attach(api_logs_repository::ApiLogger)
+        .manage(ClaudeRepository::new())
         .mount("/", routes![
             rocket_routes::weather_route::get_weather_api,
             api_logs_route::get_api_logs,
             jwt::jwt_routes::get_user_claim, 
-            jwt::jwt_routes::who_am_i
+            jwt::jwt_routes::who_am_i,
+            rocket_routes::claude_route::chat
             ])
         .mount(
             "/",
             SwaggerUi::new("/swagger-ui/<_..>").url("/api-docs/openapi.json", ApiDoc::openapi()),
         )
-        .mount("/ask-claude", routes![
-            rocket_routes::claude_route::chat
-        ])
-        .manage(ClaudeRepository)
+        
         .mount(
             "/auth0",
             routes![
@@ -68,5 +67,11 @@ async fn main() -> Result<(), rocket::Error> {
         )
         .launch()
         .await?;
+
+    println!("Starting rocket");
+    for route in rocket.routes(){
+        println!("{} {}", route.method, route.uri);
+    }
+    rocket.launch().await?;
     Ok(())
 }
