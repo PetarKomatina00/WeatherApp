@@ -1,5 +1,6 @@
 
 use crate::assets::utility::Route;
+use crate::components::chat::chat_window::ChatWindow;
 use crate::components::front_image::FrontImage;
 use crate::components::login_button::{Auth0Action, LoginButton};
 use crate::components::login_modal::LoginModal;
@@ -144,7 +145,7 @@ pub fn home() -> Html {
 
                 </ul>
                 <span class="navbar-text text-center w-md-auto">
-                    <div class = ""><h3 class = "welcome-message">{format!("Hello {}", user_profile.as_ref().map(|p| &p.name).unwrap_or(&format!("Guest"))) }</h3></div>
+                    <div class = ""><h3 class = "welcome-message">{format!("Helloooo {}", user_profile.as_ref().map(|p| &p.name).unwrap_or(&format!("Guest"))) }</h3></div>
                 </span>
             </div>
         </nav>
@@ -162,6 +163,8 @@ pub fn home() -> Html {
             }
             // <LoginButton/>
         </div>
+
+        <ChatWindow/>
         if *is_loading{
         <Spinner/>
     }
