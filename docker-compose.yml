@@ -3,14 +3,21 @@ services:
     build: 
       context: .
       dockerfile: backend/Dockerfile 
+      target: development
     volumes:
       - ./shared:/app/shared
+      - ./backend:/app/backend
     ports:
       - 8000:8000
     env_file:
       - ./backend/.env
     environment: 
       - ROCKET_DATABASES={postgres={url=postgres://postgres:password@postgres:5432/weather_app_db}}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   frontend:
     build: 
       context: .
@@ -22,8 +29,21 @@ services:
       - "8001:80"
     environment:
       - TRUNK_WATCH_USE_POLLING=true
+  python_claude:
+    build:
+      context: ./python_claude
+      dockerfile: Dockerfile
+    ports:
+      - 8002:8002
+    env_file:
+      - ./python_claude/.env
   postgres:
     image: postgres:latest
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password 
