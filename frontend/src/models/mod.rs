@@ -52,8 +52,3 @@ pub struct ChatMessage{
 pub struct AskRequest{
     pub question: String
 }
-
-#[derive(Deserialize)]
-pub struct AskResponse{
-    pub answer: String
-}
