@@ -5,3 +5,4 @@ pub mod login_modal;
 pub mod user_info;
 pub mod weather_card;
 pub mod spinner;
+pub mod chat;
