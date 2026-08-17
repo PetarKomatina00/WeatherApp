@@ -1,4 +1,4 @@
-FROM rust:1.91-slim-bullseye AS builder
+FROM rust:1.91-slim-bullseye AS base
 
 RUN apt-get update && apt-get install -y libpq-dev libssl-dev pkg-config build-essential
 
@@ -7,25 +7,27 @@ WORKDIR /app
 COPY backend/ ./backend
 COPY shared/ ./shared
 
+FROM base as development
+
+WORKDIR /app/backend
+
+RUN cargo build 
+
+CMD ["cargo", "run"]
+
+FROM base AS builder
+
 WORKDIR /app/backend
 
 RUN cargo build --release
 
-FROM debian:bullseye-slim
-
-RUN apt-get update && apt-get install -y --no-install-recommends libpq5 libssl-dev ca-certificates build-essential postgresql-client && rm -rf /var/lib/apt/lists/*
+FROM debian:bullseye-slim as production
 
 WORKDIR /app
 
-COPY --from=builder /app/backend//target/release/backend/ /app/
+COPY --from=builder /app/backend/target/release/backend /app/backend
 
-COPY backend/.env /app/.env
 
-COPY backend/Rocket.toml /app/Rocket.toml
-
-COPY backend/diesel.toml /app/diesel.toml
-
-COPY backend/migrations /app/migrations
 EXPOSE 8000
 
 CMD ["./backend"] 
