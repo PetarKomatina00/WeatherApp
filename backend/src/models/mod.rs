@@ -93,3 +93,8 @@ pub struct Profile {
     pub email_verified: bool,
 }
 
+#[derive(Debug, Serialize)]
+pub struct ClaudeRequest{
+    pub conversation_id: String,
+    pub question: String
+}
