@@ -3,10 +3,10 @@
 use rocket::{http::Status, serde::json::Json, State};
 
 use shared::{AskRequest, AskResponse};
-use crate::{models::ClaudeRequest, repositories::claude_repository::ClaudeRepository};
+use crate::{jwt::jwt_guards::User, models::ClaudeRequest, repositories::claude_repository::ClaudeRepository};
 
 #[post("/ask-claude", format="json", data = "<request>")]
-pub async fn chat(request: Json<AskRequest>, claude_repository: &State<ClaudeRepository>) -> Result<Json<AskResponse>, String>{
+pub async fn chat(_user: User, request: Json<AskRequest>, claude_repository: &State<ClaudeRepository>) -> Result<Json<AskResponse>, String>{
     println!("Got to the endpoint");
 
     let claude_request = ClaudeRequest {

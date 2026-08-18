@@ -164,7 +164,9 @@ pub fn home() -> Html {
             // <LoginButton/>
         </div>
 
-        <ChatWindow/>
+        if *is_logged_in{
+            <ChatWindow/>
+        }
         if *is_loading{
         <Spinner/>
     }
