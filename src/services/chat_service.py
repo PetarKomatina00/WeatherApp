@@ -1,5 +1,5 @@
-from claude_client import client
-from config import ANTHROPIC_MODEL
+from src.claude_client import client
+from src.config import ANTHROPIC_MODEL
 
 class ChatService:
     def __init__(self, system_prompt: str):

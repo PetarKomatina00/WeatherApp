@@ -5,6 +5,7 @@ from utils.json_utils import save_json,load_json
 from pathlib import Path
 from prompts.testing.test_prompt import TestPrompt
 import json
+from fastapi import FastAPI
 def main() -> None:
     chat = ChatService(CAMPING_SYSTEM_PROMPT)
     prompt_test = TestPrompt(chat)
@@ -28,19 +29,20 @@ def main() -> None:
     
     #These gets called only once
 
-    file_path = Path("dataset.json")
-    if not file_path.exists():
-        dataset = DatasetService(chat)
-        answer = dataset.generate_dataset()
-        save_json(answer, "dataset.json")
-        print("Dataset created")
-    else:
-        print("Dataset already exists. Good.")
+    # file_path = Path("dataset.json")
+    # if not file_path.exists():
+    #     dataset = DatasetService(chat)
+    #     answer = dataset.generate_dataset()
+    #     save_json(answer, "dataset.json")
+    #     print("Dataset created")
+    # else:
+    #     print("Dataset already exists. Good.")
 
-    if file_path.exists():
-        dataset = load_json(file_path)
-        results = prompt_test.run_eval(dataset)
-        print(json.dumps(results, indent=2))
+    # if file_path.exists():
+    #     dataset = load_json(file_path)
+    #     results = prompt_test.run_eval(dataset)
+    #     print(json.dumps(results, indent=2))
+
 
 
 if __name__ == "__main__":
