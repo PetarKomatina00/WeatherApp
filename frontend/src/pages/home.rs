@@ -83,7 +83,7 @@ pub fn home() -> Html {
         let is_login_modal_open_handle = is_login_modal_open.clone();
         let is_loading_handle = is_loading_handle.clone();
         let input_value_handle = input_value_handle.clone();
-        Callback::from(move |btn: ButtonContent| {
+        Callback::from(move |mut btn: ButtonContent| {
             let state = weather_data_handle.clone(); // clone for this invocation
             let is_login_modal_open = is_login_modal_open_handle.clone();
             let is_loading_handle = is_loading_handle.clone();
@@ -117,9 +117,9 @@ pub fn home() -> Html {
     let data = (*weather_data).clone();
     html! {
     <>
-    if !input_value.is_empty(){
-        {(*input_value).clone()}
-    }
+    // if !input_value.is_empty(){
+    //     {(*input_value).clone()}
+    // }
         <nav class="navbar navbar-expand-md navbar-light bg-light px-3">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
                 aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -157,7 +157,10 @@ pub fn home() -> Html {
             }/>
         }
         <div class="background-image-section">
-            <FrontImage data = {on_submit} />
+            if *is_loading_handle{
+                
+            }
+            <FrontImage data = {on_submit} is_loading = {*is_loading_handle}/>
             if data != WeatherData::default(){
                 <WeatherCard weather_data = {data}/>
             }
