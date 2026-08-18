@@ -6,6 +6,7 @@ use crate::{api::api::ButtonContent, assets::utility, components::input_button::
 #[derive(Properties, PartialEq)]
 pub struct Props {
     pub data: Callback<ButtonContent>,
+    pub is_loading: bool,
 }
 #[function_component(FrontImage)]
 pub fn front_image(props: &Props) -> Html {
@@ -19,7 +20,7 @@ pub fn front_image(props: &Props) -> Html {
     html! {
         <>
             <div style = {custom_background_image} class = {classes!("bg-image")}>
-                <InputButton data = {props.data.clone()}/>
+                <InputButton data = {props.data.clone()} is_loading = {props.is_loading.clone()}/>
             </div>
         </>
     }
