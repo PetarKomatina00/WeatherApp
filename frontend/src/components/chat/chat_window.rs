@@ -3,9 +3,9 @@ use shared::AskResponse;
 use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
-use yew::{Callback, Event, Html, InputEvent, MouseEvent, TargetCast, function_component, html, use_effect_with, use_mut_ref, use_state};
+use yew::{Callback, Event, Html, InputEvent, KeyboardEvent, MouseEvent, SubmitEvent, TargetCast, function_component, html, use_effect_with, use_mut_ref, use_state};
 use gloo_net::http::Request;
-use crate::{api::chat::send_chat_message};
+use crate::{api::chat::send_chat_message, assets::markdown::markdown_to_html};
 #[function_component(ChatWindow)]
 pub fn chat_window() -> Html{
 
@@ -30,24 +30,36 @@ pub fn chat_window() -> Html{
         })
     };
 
+    let onkeydown = {
+        Callback::from(move |e: KeyboardEvent| {
+            if e.key() == "Enter"{
+
+            }
+
+        })
+    };
+
     let on_send = {
         let question = question.clone();
         let response = response.clone();
         let is_claude_loading = is_claude_loading.clone();
         
-        Callback::from(move |_e: MouseEvent| {
-            let question = (*question).clone();
+        Callback::from(move |e: SubmitEvent| {
+            e.prevent_default();
+            let question = question.clone();
             let response = response.clone();
             let is_claude_loading = is_claude_loading.clone();
 
             is_claude_loading.set(true);
             spawn_local(async move {
-                let result = send_chat_message(&question).await;
+                let question_string = (*question).clone();
+                let result = send_chat_message(&question_string).await;
 
                 match result{
                     Ok(claude_response) => {
                         response.set(claude_response);
                         is_claude_loading.set(false);
+                        question.set(String::new())
                     },
                     Err(e) => {
                         
@@ -67,42 +79,44 @@ pub fn chat_window() -> Html{
                     if *is_claude_loading {
                         <p>{ "Loading..." }</p>
                     } else {
-                        <p>{ response.answer.clone()}</p>
+                        <p>{ markdown_to_html(&response.answer.clone())}</p>
                     }
                 </div>
 
-                <div class="d-flex gap-2">
-                    <input
-                        type="text"
-                        class="form-control"
-                        value={(*question).clone()}
-                        oninput={on_input}
-                        placeholder="Postavi pitanje..."
-                    />
+                <form onsubmit={on_send}>
+                    <div class="d-flex gap-2">
+                        <input
+                            type="text"
+                            class="form-control"
+                            value={(*question).clone()}
+                            oninput={on_input}
+                            placeholder="Postavi pitanje..."
+                        />
 
-                    <button
-                        class="btn btn-primary"
-                        onclick={on_send}
-                        disabled={*is_claude_loading}
-                    >
-                        {
-                            if *is_claude_loading{
-                                html! {
-                                    <>
-                                        <span
-                                        class="spinner-border spinner-border-sm me-2"
-                                        role="status"></span>
-                                    </>
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                            disabled={*is_claude_loading}
+                        >
+                            {
+                                if *is_claude_loading {
+                                    html! {
+                                        <>
+                                            <span
+                                                class="spinner-border spinner-border-sm me-2"
+                                                role="status"
+                                            ></span>
+                                        </>
+                                    }
+                                } else {
+                                    html! {
+                                        {"Send"}
+                                    }
                                 }
                             }
-                            else{
-                                html! {
-                                    {"Send"}
-                                }
-                            }
-                        }
-                    </button>
-                </div>
+                        </button>
+                    </div>
+                </form>
 
             </div>
         </div>
