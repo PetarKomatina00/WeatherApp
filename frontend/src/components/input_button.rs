@@ -26,8 +26,18 @@ pub fn generate_button(props: &Props) -> Html {
     };
     let on_click = {
         let data = props.data.clone();
+        let input_value = input_value.clone();
         Callback::from(move |_event: MouseEvent| {
             data.emit((*input_value).clone());
+        })
+    };
+
+    let onkeydown = {
+        let data = props.data.clone();
+        Callback::from(move |e: KeyboardEvent| {
+            if e.key() == "Enter" {
+                data.emit((*input_value).clone());
+            }
         })
     };
 
@@ -39,6 +49,7 @@ pub fn generate_button(props: &Props) -> Html {
                         oninput={on_change_input_value}
                           type="text"
                           class="form-control"
+                          {onkeydown} 
                           placeholder="Enter city"
                         />
                         <button onclick = {on_click} class="futuristic-button" type="button">{"Search"}</button>
