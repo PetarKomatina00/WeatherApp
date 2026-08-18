@@ -11,8 +11,9 @@ pub fn chat_window() -> Html{
 
     let question = use_state(String::new);
     let response = use_state(|| AskResponse::default());
-    let is_loading = use_state(|| false);
+    let is_claude_loading = use_state(|| false);
     let debouncer_timer = use_mut_ref(|| None::<Timeout>);
+    
 
     let on_input = {
         let debouncer_timer = debouncer_timer.clone();
@@ -32,21 +33,28 @@ pub fn chat_window() -> Html{
     let on_send = {
         let question = question.clone();
         let response = response.clone();
+        let is_claude_loading = is_claude_loading.clone();
+        
         Callback::from(move |_e: MouseEvent| {
             let question = (*question).clone();
             let response = response.clone();
+            let is_claude_loading = is_claude_loading.clone();
+
+            is_claude_loading.set(true);
             spawn_local(async move {
                 let result = send_chat_message(&question).await;
 
                 match result{
                     Ok(claude_response) => {
                         response.set(claude_response);
+                        is_claude_loading.set(false);
                     },
                     Err(e) => {
-
+                        
                     }
                 }
             });
+            
         })
     };
     html! {
@@ -56,7 +64,7 @@ pub fn chat_window() -> Html{
                 <h3>{ "Claude Chat" }</h3>
 
                 <div class="mb-3">
-                    if *is_loading {
+                    if *is_claude_loading {
                         <p>{ "Loading..." }</p>
                     } else {
                         <p>{ response.answer.clone()}</p>
@@ -75,9 +83,24 @@ pub fn chat_window() -> Html{
                     <button
                         class="btn btn-primary"
                         onclick={on_send}
-                        disabled={*is_loading}
+                        disabled={*is_claude_loading}
                     >
-                        { "Send" }
+                        {
+                            if *is_claude_loading{
+                                html! {
+                                    <>
+                                        <span
+                                        class="spinner-border spinner-border-sm me-2"
+                                        role="status"></span>
+                                    </>
+                                }
+                            }
+                            else{
+                                html! {
+                                    {"Send"}
+                                }
+                            }
+                        }
                     </button>
                 </div>
 
