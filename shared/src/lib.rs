@@ -79,11 +79,13 @@ impl Default for WeatherData {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct AskRequest {
+pub struct ClaudeRequest {
     pub question: String,
+    pub use_mcp_weather: bool,
+    pub weather_data: Option<WeatherData>
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
-pub struct AskResponse {
+pub struct ClaudeResponse {
     pub answer: String,
 }

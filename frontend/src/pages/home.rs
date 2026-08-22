@@ -5,6 +5,7 @@ use crate::components::front_image::FrontImage;
 use crate::components::login_button::{Auth0Action, LoginButton};
 use crate::components::login_modal::LoginModal;
 use crate::components::spinner::Spinner;
+// use crate::components::weather_card::_Props::weather_data;
 use crate::components::weather_card::WeatherCard;
 use crate::api::api::{fetch_weather_data, ButtonContent};
 use crate::models::Profile;
@@ -20,11 +21,12 @@ use yew_router::hooks::use_navigator;
 pub fn home() -> Html {
     let navigator = use_navigator().unwrap();
     let input_value = use_state(|| String::new());
-    let weather_data = use_state(|| WeatherData::default());
+    let weather_data: UseStateHandle<Option<WeatherData>> = use_state(|| None::<WeatherData>);
     let is_login_modal_open = use_state(|| false);
     let user_profile: UseStateHandle<Option<Profile>> = use_state(|| None::<Profile>);
     let is_logged_in = use_state(|| false);
     
+
     let is_logged_in_handle = is_logged_in.clone();
     let user_profile_handle = user_profile.clone();
     let is_admin_logged = use_state(|| false);
@@ -99,7 +101,7 @@ pub fn home() -> Html {
                         if let Ok(parsed) = resp.json::<WeatherData>().await {
                             is_login_modal_open.set(false);
                             //log!(&format!("WeatherData: {:?}", parsed));
-                            state.set(parsed);
+                            state.set(Some(parsed));
                         }
                     }
                     Err(_err) => {
@@ -114,7 +116,7 @@ pub fn home() -> Html {
     let move_to_dashboard = Callback::from(move |_e: MouseEvent| {
         navigator.push(&Route::AdminPage);
     });
-    let data = (*weather_data).clone();
+    let data: Option<WeatherData> = (*weather_data).clone();
     html! {
     <>
     // if !input_value.is_empty(){
@@ -145,7 +147,7 @@ pub fn home() -> Html {
 
                 </ul>
                 <span class="navbar-text text-center w-md-auto">
-                    <div class = ""><h3 class = "welcome-message">{format!("Helloooo {}", user_profile.as_ref().map(|p| &p.name).unwrap_or(&format!("Guest"))) }</h3></div>
+                    <div class = ""><h3 class = "welcome-message">{format!("Hello {}", user_profile.as_ref().map(|p| &p.name).unwrap_or(&format!("Guest"))) }</h3></div>
                 </span>
             </div>
         </nav>
@@ -161,14 +163,14 @@ pub fn home() -> Html {
                 
             }
             <FrontImage data = {on_submit} is_loading = {*is_loading_handle}/>
-            if data != WeatherData::default(){
+            if let Some(data) = data{
                 <WeatherCard weather_data = {data}/>
             }
             // <LoginButton/>
         </div>
 
         if *is_logged_in{
-            <ChatWindow/>
+            <ChatWindow weather_data = {(*weather_data).clone()}/>
         }
         if *is_loading{
         <Spinner/>
