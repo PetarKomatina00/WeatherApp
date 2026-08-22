@@ -38,6 +38,10 @@ services:
       - 8002:8002
     env_file:
       - ./python_claude/.env
+    volumes:
+      - ./python_claude:/app
+    environment:
+      - PYTHONUNBUFFERED=1
   postgres:
     image: postgres:17
     healthcheck:
