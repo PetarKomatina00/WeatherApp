@@ -2,6 +2,7 @@
 use chrono::NaiveDateTime;
 use diesel::prelude::{Insertable, Queryable};
 use serde::{Deserialize, Serialize};
+use shared::WeatherData;
 use uuid::Uuid;
 use crate::schema::*;
 #[derive(Debug, Serialize, Deserialize)]
@@ -93,8 +94,9 @@ pub struct Profile {
     pub email_verified: bool,
 }
 
-#[derive(Debug, Serialize)]
-pub struct ClaudeRequest{
-    pub conversation_id: String,
-    pub question: String
-}
+// #[derive(Debug, Serialize)]
+// pub struct ClaudeRequest{
+//     pub conversation_id: String,
+//     pub question: String,
+//     pub weather_data: Option<WeatherData>
+// }

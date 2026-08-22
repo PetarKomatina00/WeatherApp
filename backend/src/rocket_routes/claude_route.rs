@@ -1,19 +1,23 @@
 // This is actually calling Python API not CLAUDE API
 
-use rocket::{http::Status, serde::json::Json, State};
+use rocket::{serde::json::Json, State};
 
-use shared::{AskRequest, AskResponse};
-use crate::{jwt::jwt_guards::User, models::ClaudeRequest, repositories::claude_repository::ClaudeRepository};
+use shared::{ClaudeRequest, ClaudeResponse};
+use crate::{jwt::jwt_guards::User, repositories::claude_repository::ClaudeRepository};
 
 #[post("/ask-claude", format="json", data = "<request>")]
-pub async fn chat(_user: User, request: Json<AskRequest>, claude_repository: &State<ClaudeRepository>) -> Result<Json<AskResponse>, String>{
+pub async fn chat(_user: User, request: Json<ClaudeRequest>, claude_repository: &State<ClaudeRepository>) -> Result<Json<ClaudeResponse>, String>{
     println!("Got to the endpoint");
 
+    let parsed_request = request.into_inner();
+    
     let claude_request = ClaudeRequest {
-        conversation_id : "test".to_string(), 
-        question: request.into_inner().question
+        question: parsed_request.question,
+        use_mcp_weather: parsed_request.use_mcp_weather,
+        weather_data : parsed_request.weather_data
     };
-    let response: Result<AskResponse, String> = claude_repository.ask_claude(&claude_request)
+    
+    let response: Result<ClaudeResponse, String> = claude_repository.ask_claude(&claude_request)
     .await
     .map_err(|error| {
         eprintln!("Error communicatin with python claude {}", error);
