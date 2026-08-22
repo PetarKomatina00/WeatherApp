@@ -100,3 +100,12 @@ pub struct Profile {
 //     pub question: String,
 //     pub weather_data: Option<WeatherData>
 // }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ClaudeServiceRequest {
+    pub conversation_id: String,
+    pub question: String,
+    pub use_mcp_weather: bool,
+    pub weather_data: Option<WeatherData>
+}
+    

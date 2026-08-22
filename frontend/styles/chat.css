@@ -32,14 +32,12 @@
     font-weight: 500;
 }
 
-/* Sakrivamo standardni checkbox */
 .mcp-toggle-input {
     position: absolute;
     opacity: 0;
     pointer-events: none;
 }
 
-/* Pozadina switch-a */
 .mcp-toggle {
     position: relative;
     display: block;

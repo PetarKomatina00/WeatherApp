@@ -83,6 +83,7 @@ pub fn chat_window(props: &Props) -> Html{
                     },
                     Err(e) => {
                         is_claude_loading.set(false);
+                        web_sys::console::log_1(&format!("Question: {}, MCP: {}", *question, *use_mcp_weather).into());
                         notifications_manager.spawn(Notification::new(NotificationType::Error, String::from("Zahtev zavrsen"), String::from(format!("{}", e)), Duration::seconds(5)));
                     }
                 }
