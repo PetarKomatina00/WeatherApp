@@ -35,13 +35,26 @@ services:
       context: ./python_claude
       dockerfile: Dockerfile
     ports:
-      - 8002:8002
+      - "8002:8002"
     env_file:
       - ./python_claude/.env
     volumes:
       - ./python_claude:/app
     environment:
-      - PYTHONUNBUFFERED=1
+      PYTHONUNBUFFERED: "1"
+      MCP_WEATHER_URL: "http://mcp_weather:8003/mcp"
+    depends_on:
+      - mcp_weather
+  mcp_weather:
+    build:
+      context: ./mcp_weather
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    env_file:
+      - ./mcp_weather/.env
+    volumes:
+      - ./mcp_weather:/app
   postgres:
     image: postgres:17
     healthcheck:
