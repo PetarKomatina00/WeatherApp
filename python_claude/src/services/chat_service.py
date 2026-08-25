@@ -1,6 +1,7 @@
 from src.claude_client import client as claude_client
 from src.config import ANTHROPIC_MODEL
 from mcp_weather.mcp_client import MCPClient
+from typing import Any
 import os
 import json;
 class ChatService:
@@ -14,8 +15,9 @@ class ChatService:
             "role": role,
             "content": text.rstrip(),
         })
+        
 
-    def ask(self, question: str, use_mcp_weather, weather_data = None, system=None, temperature = 0.2) -> str:
+    async def ask(self, question: str, use_mcp_weather, weather_data = None, system=None, temperature = 0.2) -> str:
 
 
         question = question.strip()
@@ -79,7 +81,7 @@ class ChatService:
         # When creating message history we need to rstrip()
 
         if use_mcp_weather:
-            pass
+            response = await self.ask_with_mcp(question, params=params)
         else:
             response = claude_client.messages.create(**params)
 
@@ -88,7 +90,7 @@ class ChatService:
 
         return answer
 
-    async def ask_with_mcp(self, question: str, temperature):
+    async def ask_with_mcp(self, question: str, params : dict[str: Any]):
         tools = await self.mcp_client.get_claude_tools()
 
         if not tools:
@@ -101,17 +103,10 @@ class ChatService:
                 "content" : question
             }
         ]
-        params = {
-            "model" : ANTHROPIC_MODEL,
-            "max_tokens" : 1024,
-            "messages" : self.message_history,                    
-            "temperature" : temperature,
-            "system" : self.system,
-            "tools" : tools
-            }
+        params["tools"] = tools
 
         while True:
-            response = await claude_client.messages.create(**tools)
+            response = claude_client.messages.create(**params)
 
             tool_uses = []
 
@@ -125,14 +120,13 @@ class ChatService:
                 for block in response.content:
                     if block.type == "text":
                         response_text += block.text
-                return response_text
+                return response
 
-            self.message_history.append(
-                {
-                    "role" : "assistant",
-                    "content" : response.content
-                }
-            )
+
+            self.message_history.append({
+                "role" : "assistant",
+                "content" : response.content
+            })
             tool_results = []
 
             for tool_use in tool_uses:
@@ -146,7 +140,7 @@ class ChatService:
                     for block in result.content:
                         if hasattr(block, "text"):
                             result_text.append(block.text)
-                    result_content = "\n".append(result_text)
+                    result_content = "\n".join(result_text)
 
                 tool_results.append({
                     "type" : "tool_result",
@@ -154,7 +148,7 @@ class ChatService:
                     "content" : result_content,
                     "is_error" : result.is_error
                 })
-            self.message_history({
+            self.message_history.append({
                 "role" : "user",
                 "content" : tool_results
             })

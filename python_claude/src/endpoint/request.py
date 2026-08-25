@@ -11,7 +11,7 @@ sessions: dict[str, ChatService] = {}
 
 
 @app.post("/ask-claude", response_model=ClaudeResponse)
-def ask_claude(request: ClaudeRequest):
+async def ask_claude(request: ClaudeRequest):
 
     print("Request je dobijen", request, flush=True)
     print(request)
@@ -19,6 +19,6 @@ def ask_claude(request: ClaudeRequest):
         sessions[request.conversation_id] = ChatService(SYSTEM_PROMPT)
     chat = sessions[request.conversation_id]
 
-    answer = chat.ask(question=request.question, use_mcp_weather=request.use_mcp_weather, weather_data=request.weather_data, system=request.system, temperature=request.temperature)
+    answer = await chat.ask(question=request.question, use_mcp_weather=request.use_mcp_weather, weather_data=request.weather_data, system=request.system, temperature=request.temperature)
 
     return ClaudeResponse(answer=answer)
