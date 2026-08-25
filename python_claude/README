@@ -1,0 +1,34 @@
+Controlling Claude's Output Format
+
+When you want Claude to continue or complete a response in a specific format, you can guide it by pre-filling an assistant message with add_assistant_message().
+
+Starting a Markdown Code Block
+
+If you want Claude's response to begin inside a Markdown code block, pre-fill the assistant message with three backticks:
+
+add_assistant_message(message_history, "```")
+
+Claude will interpret this as if the assistant has already started a code block and will continue generating content inside it.
+
+If you want to specify the language of the code block, include it after the backticks:
+
+add_assistant_message(message_history, "```bash")
+
+This tells Claude to continue the response as a Bash code block.
+
+Preventing Claude from Closing the Code Block
+
+You can use stop_sequences to stop generation when Claude attempts to close the code block:
+
+stop_sequences=["```"]
+
+For example:
+
+message = client.messages.create(
+    model=ANTHROPIC_MODEL,
+    max_tokens=1024,
+    messages=message_history,
+    stop_sequences=["```"],
+)
+
+This is useful when you want to control where the Markdown block ends yourself.
