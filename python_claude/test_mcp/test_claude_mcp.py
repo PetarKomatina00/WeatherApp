@@ -5,6 +5,7 @@ import os
 from anthropic import AsyncAnthropic
 
 from mcp_weather.mcp_client import MCPClient
+from src.prompts.camping import CAMPING_SYSTEM_PROMPT
 
 
 async def main():
@@ -99,6 +100,7 @@ async def main():
     # 7. Claude sada pravi finalni odgovor
     final_response = await claude.messages.create(
         model=os.environ["ANTHROPIC_MODEL"],
+        system=CAMPING_SYSTEM_PROMPT,
         max_tokens=1024,
         messages=messages,
         tools=tools,
