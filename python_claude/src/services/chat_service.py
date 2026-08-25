@@ -1,10 +1,13 @@
-from src.claude_client import client
+from src.claude_client import client as claude_client
 from src.config import ANTHROPIC_MODEL
+from mcp_weather.mcp_client import MCPClient
+import os
 import json;
 class ChatService:
     def __init__(self, system_prompt: str):
         self.system = system_prompt
         self.message_history = []
+        self.mcp_client = MCPClient(os.environ["MCP_SERVER_URL"])
 
     def add_message(self, role: str, text: str) -> None:
         self.message_history.append({
@@ -78,16 +81,89 @@ class ChatService:
         if use_mcp_weather:
             pass
         else:
-            response = client.messages.create(**params)
+            response = claude_client.messages.create(**params)
 
         answer = response.content[0].text
         self.add_message("assistant", answer)
 
         return answer
+
+    async def ask_with_mcp(self, question: str, temperature):
+        tools = await self.mcp_client.get_claude_tools()
+
+        if not tools:
+            print("Tools not found")
+            raise RuntimeError("Tools not found")
+
+        messages = [
+            {
+                "role" : "user",
+                "content" : question
+            }
+        ]
+        params = {
+            "model" : ANTHROPIC_MODEL,
+            "max_tokens" : 1024,
+            "messages" : self.message_history,                    
+            "temperature" : temperature,
+            "system" : self.system,
+            "tools" : tools
+            }
+
+        while True:
+            response = await claude_client.messages.create(**tools)
+
+            tool_uses = []
+
+            for block in response.content:
+                if block.type == "tool_use":
+                    tool_uses.append(block)
+
+            if not tool_uses:
+                response_text = ""
+
+                for block in response.content:
+                    if block.type == "text":
+                        response_text += block.text
+                return response_text
+
+            self.message_history.append(
+                {
+                    "role" : "assistant",
+                    "content" : response.content
+                }
+            )
+            tool_results = []
+
+            for tool_use in tool_uses:
+                result = await self.mcp_client.call_tool(tool_use.name, tool_use.input)
+
+                if result.structured_content is not None:
+                    result_content = json.dumps(result.structured_content)
+                else:
+                    result_text = []
+
+                    for block in result.content:
+                        if hasattr(block, "text"):
+                            result_text.append(block.text)
+                    result_content = "\n".append(result_text)
+
+                tool_results.append({
+                    "type" : "tool_result",
+                    "tool_use_id" : tool_use.id,
+                    "content" : result_content,
+                    "is_error" : result.is_error
+                })
+            self.message_history({
+                "role" : "user",
+                "content" : tool_results
+            })
+
+        
     def ask_get_chunk_data(self, question: str, system=None, temperature = 0.2) -> str:
 
         self.add_message("user", question)
-        with client.messages.stream(
+        with claude_client.messages.stream(
             model = ANTHROPIC_MODEL,
             max_tokens=1024,
             messages=self.message_history
