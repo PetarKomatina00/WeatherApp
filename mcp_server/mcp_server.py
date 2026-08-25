@@ -17,7 +17,7 @@ class MCPWeatherServer:
 
         self.open_weather_url = "http://api.openweathermap.org/data/2.5/weather"
 
-        self.mcp_server = MCPServer("mcp-weather")
+        self.mcp_server = MCPServer("mcp_server")
 
         self._register_tools()
 

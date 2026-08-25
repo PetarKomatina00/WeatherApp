@@ -1,39 +1,48 @@
-import asyncio
+
+from typing import Any
 
 from mcp import Client
-from mcp_server import mcp
 
+class MCPClient:
 
-claude_tools = []
-async def main():
-    async with Client(mcp) as client:
-        print("Connected to the MCP server")
+    def __init__(self, server_url: str):
+        self.server_url = server_url
 
-        tools_result = await client.list_tools()
+    async def get_claude_tools(self) -> list[dict[str, Any]]:
+        """
+        Get available MCP tools and convert them
+        to Claude-compatible tool definitions.
+        """
 
-        if len(tools_result.tools) == 0:
-            print("No tools registered")
-        else:
+        async with Client(self.server_url) as client:
+            print("Connected to the MCP server")
+
+            tools_result = await client.list_tools()
+
+            if not tools_result.tools:
+                print("No tools registered")
+                return []
+
             print("Available tools")
 
-        for tool in tools_result.tools:
-            print(f"{tool.name}")
-            claude_tools.append({
-                "name" : tool.name,
-                "description" : tool.description or "",
-                "input_schema" : tool.input_schema
-            })
+            claude_tools = []
 
-        result = await client.call_tool(
-            "get_weather", 
-            {
-                "city" : "Madrid"
-            }
-        )
+            for tool in tools_result.tools:
+                print(tool.name)
 
-        print("Result")
-        print(result)
-if __name__ == "__main__":
-    asyncio.run(main())
-            
-            
+                claude_tools.append({
+                    "name": tool.name,
+                    "description": tool.description or "",
+                    "input_schema": tool.input_schema,
+                })
+
+            return claude_tools
+
+    async def call_tool(self,tool_name: str,arguments: dict[str, str],):
+        """
+        Call a tool exposed by the MCP server.
+        """
+
+        async with Client(self.server_url) as client:
+            result = await client.call_tool(tool_name,arguments)
+            return result
