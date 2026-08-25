@@ -4,21 +4,20 @@ import os
 
 from anthropic import AsyncAnthropic
 
-from src.claude_client import MCPClient
+from mcp_weather.mcp_client import MCPClient
 
 
 async def main():
-    claude = AsyncAnthropic(
-        api_key=os.environ["ANTHROPIC_API_KEY"]
-    )
+    claude = AsyncAnthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
-    mcp_client = MCPClient(
-        os.environ["MCP_WEATHER_URL"]
-    )
+    mcp_client = MCPClient(os.environ["MCP_SERVER_URL"])
 
-    # 1. Preuzmi toolove sa MCP servera
     tools = await mcp_client.get_claude_tools()
 
+    if len(tools) == 0:
+        print("No available tools")
+        return
+    
     print("AVAILABLE TOOLS:")
     print(tools)
 
@@ -29,9 +28,9 @@ async def main():
         }
     ]
 
-    # 2. Prvi Claude poziv
+    # First we need to call claude
     response = await claude.messages.create(
-        model=os.environ["CLAUDE_MODEL"],
+        model=os.environ["ANTHROPIC_MODEL"],
         max_tokens=1024,
         messages=messages,
         tools=tools,
@@ -40,30 +39,27 @@ async def main():
     print("\nFIRST CLAUDE RESPONSE:")
     print(response)
 
-    tool_use = next(
-        (
-            block
-            for block in response.content
-            if block.type == "tool_use"
-        ),
-        None,
-    )
+    tool_use = None
 
-    # Claude je odlučio da MCP nije potreban
+    for block in response.content:
+        if block.type == "tool_use":
+            tool_use = block
+            break
+
+    # Get the tool use block
     if tool_use is None:
         print("\nClaude did not use a tool.")
 
         for block in response.content:
             if block.type == "text":
                 print(block.text)
-
         return
 
     print("\nTOOL SELECTED BY CLAUDE:")
     print("name:", tool_use.name)
     print("arguments:", tool_use.input)
 
-    # 3. Izvrši ono što je Claude tražio
+    # Call tool
     result = await mcp_client.call_tool(
         tool_use.name,
         tool_use.input,
@@ -74,10 +70,7 @@ async def main():
 
     # 4. Pretvori MCP rezultat u sadržaj pogodan za Claude
     if result.structured_content is not None:
-        tool_result_content = json.dumps(
-            result.structured_content,
-            ensure_ascii=False,
-        )
+        tool_result_content = json.dumps(result.structured_content)
     else:
         tool_result_content = "\n".join(
             block.text
@@ -105,7 +98,7 @@ async def main():
 
     # 7. Claude sada pravi finalni odgovor
     final_response = await claude.messages.create(
-        model=os.environ["CLAUDE_MODEL"],
+        model=os.environ["ANTHROPIC_MODEL"],
         max_tokens=1024,
         messages=messages,
         tools=tools,
