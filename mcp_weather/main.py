@@ -3,7 +3,8 @@
 ## It shows a successfull connection has been made between MCP client, server and claude
 
 # This now does not work because MCPClient is in another folder: python_claude
-# This is used only for testing purposes in development.
+# This is used only for testing purposes in development when client and server
+# where in the some folder
 
 
 # import asyncio

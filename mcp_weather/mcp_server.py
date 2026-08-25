@@ -57,7 +57,7 @@ class MCPWeatherServer:
                 "wind_speed": data["wind"]["speed"],
             }
 
-    def run (self, host: str = "127.0.0.1", port: int = 8003):
+    def run (self, host: str = "0.0.0.0", port: int = 8003):
         self.mcp_server.run(transport="streamable-http", host=host, port=port)
 
 if __name__ == "__main__":

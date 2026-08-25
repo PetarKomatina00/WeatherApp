@@ -42,7 +42,7 @@ services:
       - ./python_claude:/app
     environment:
       PYTHONUNBUFFERED: "1"
-      MCP_WEATHER_URL: "http://mcp_weather:8003/mcp"
+      MCP_SERVER_URL: "http://mcp_weather:8003/mcp"
     depends_on:
       - mcp_weather
   mcp_weather:
