@@ -164,18 +164,23 @@ pub fn home() -> Html {
                 
             }
             <FrontImage data = {on_submit} is_loading = {*is_loading_handle} is_logged_in = {*is_logged_in}/>
-            if let Some(data) = data{
-                <WeatherCard weather_data = {data}/>
+
+            if *is_loading && *is_logged_in{
+                <Spinner/>
             }
+            else{
+                if let Some(data) = data{
+                    <WeatherCard weather_data = {data}/>
+                }
+            }
+            
             // <LoginButton/>
         </div>
 
         if *is_logged_in{
             <ChatWindow weather_data = {(*weather_data).clone()}/>
         }
-        if *is_loading && *is_logged_in{
-            <Spinner/>
-        }
+
     </>
     }
 }
