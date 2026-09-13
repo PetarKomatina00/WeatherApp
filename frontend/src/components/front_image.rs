@@ -7,6 +7,7 @@ use crate::{api::api::ButtonContent, assets::utility, components::input_button::
 pub struct Props {
     pub data: Callback<ButtonContent>,
     pub is_loading: bool,
+    pub is_logged_in: bool,
 }
 #[function_component(FrontImage)]
 pub fn front_image(props: &Props) -> Html {
@@ -20,7 +21,7 @@ pub fn front_image(props: &Props) -> Html {
     html! {
         <>
             <div style = {custom_background_image} class = {classes!("bg-image")}>
-                <InputButton data = {props.data.clone()} is_loading = {props.is_loading.clone()}/>
+                <InputButton data = {props.data.clone()} is_loading = {props.is_loading.clone()} is_logged_in = {props.is_logged_in}/>
             </div>
         </>
     }

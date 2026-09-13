@@ -8,7 +8,8 @@ use crate::api::api::ButtonContent;
 #[derive(Properties, PartialEq)]
 pub struct Props {
     pub data: Callback<ButtonContent>,
-    pub is_loading: bool
+    pub is_loading: bool,
+    pub is_logged_in: bool
 }
 #[function_component(InputButton)]
 pub fn generate_button(props: &Props) -> Html {
@@ -41,23 +42,36 @@ pub fn generate_button(props: &Props) -> Html {
         })
     };
 
+    //#### Be aware of this code. Every change to on_click needs to be added in onkeydown.
+    //### This is for testing purposes only .
+    //### Better was to unite both functions with a <form>.
     let on_click = {
         let data = props.data.clone();
         let input_value = input_value.clone();
-
+        let is_logged_in = props.is_logged_in;
+        
         Callback::from(move |_event: MouseEvent| {
             data.emit((*input_value).clone());
+
+            if !is_logged_in{
+                input_value.set(ButtonContent { content: String::new() });
+            }
         })
     };
 
     let onkeydown = {
         let data = props.data.clone();
         let input_value = input_value.clone();
+        let is_logged_in = props.is_logged_in;
 
         Callback::from(move |e: KeyboardEvent| {
             if e.key() == "Enter" {
                 data.emit((*input_value).clone());
+                if !is_logged_in{
+                    input_value.set(ButtonContent { content: String::new() });
+                }
             }
+
         })
     };
 
@@ -79,7 +93,7 @@ pub fn generate_button(props: &Props) -> Html {
                     class="futuristic-button"
                     type="button"
                 >
-                    if !props.is_loading {
+                    if !props.is_loading || !props.is_logged_in{
                         {"Search"}
                     } else {
                         <span

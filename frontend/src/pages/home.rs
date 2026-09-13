@@ -81,6 +81,7 @@ pub fn home() -> Html {
     let input_value_handle = input_value.clone();
     let is_loading_handle = is_loading.clone();
     let on_submit: Callback<ButtonContent> = {
+        web_sys::console::log_1(&format!("Prikaz").into());
         let weather_data_handle = weather_data.clone(); // keep one handle in the closure’s env
         let is_login_modal_open_handle = is_login_modal_open.clone();
         let is_loading_handle = is_loading_handle.clone();
@@ -162,7 +163,7 @@ pub fn home() -> Html {
             if *is_loading_handle{
                 
             }
-            <FrontImage data = {on_submit} is_loading = {*is_loading_handle}/>
+            <FrontImage data = {on_submit} is_loading = {*is_loading_handle} is_logged_in = {*is_logged_in}/>
             if let Some(data) = data{
                 <WeatherCard weather_data = {data}/>
             }
@@ -172,9 +173,9 @@ pub fn home() -> Html {
         if *is_logged_in{
             <ChatWindow weather_data = {(*weather_data).clone()}/>
         }
-        if *is_loading{
-        <Spinner/>
-    }
+        if *is_loading && *is_logged_in{
+            <Spinner/>
+        }
     </>
     }
 }
