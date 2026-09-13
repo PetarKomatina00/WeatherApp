@@ -1,3 +1,3 @@
 -- Your SQL goes here
 ALTER TABLE api_logs
-ALTER COLUMN logs_id SET DEFAULT uuid_generate_v4();
+ALTER COLUMN logs_id SET DEFAULT gen_random_uuid();

@@ -2,6 +2,7 @@ FROM rust:1.91-slim-bullseye AS base
 
 RUN apt-get update && apt-get install -y libpq-dev libssl-dev pkg-config build-essential
 
+
 WORKDIR /app
 
 COPY backend/ ./backend
