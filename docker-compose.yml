@@ -14,10 +14,24 @@ services:
     environment: 
       - ROCKET_DATABASES={postgres={url=postgres://postgres:password@postgres:5432/weather_app_db}}
     depends_on:
-      postgres:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    #This is only in target: development and when backend depends on service healthy postgres
+    # command: >
+    #   sh - c "diesel migration run && exec cargo run"
+    
+  migrate:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: migrate
+    environment:
+      DATABASE_URL: postgres://postgres:password@postgres:5432/weather_app_db
+    depends_on:
+      postgres:
+        condition: service_healthy
   frontend:
     build: 
       context: .
@@ -74,5 +88,5 @@ services:
     image: redis:latest 
     ports:
       - 6379:6379
-  volumes:
-    postgres_data:
+volumes:
+  postgres_data:

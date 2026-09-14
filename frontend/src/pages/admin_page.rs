@@ -32,7 +32,7 @@ pub fn admin_page() -> Html {
             let api_logs_handle = api_logs_handle.clone();
             let is_loading_handle = is_loading_handle.clone();
             is_loading_handle.set(true);
-            let url = format!("http://127.0.0.1:8000/api/logs?limit=10");
+            let url = format!("http://127.0.0.1:8000/api/logs?limit=100");
             let response = Request::get(&url)
                 .header("Accept", "applicaton/json")
                 .send()
