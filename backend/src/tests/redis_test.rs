@@ -9,8 +9,9 @@ pub async fn test_redis_store_data() {
         .await
         .expect("Failed to get redis connection");
 
-    let weather_data: WeatherData = WeatherData::default();
-    let _ = Utility::store_data_in_redis(&weather_data).await;
+    let mut weather_data: WeatherData = WeatherData::default();
+    weather_data.name = format!("Barcelona-{}", uuid::Uuid::new_v4());
+    Utility::store_data_in_redis(&weather_data).await;
 
     //let weather_data_from_redis = utility::get_cached_weather_data(&weather_data.name).await.unwrap();
 
@@ -18,20 +19,16 @@ pub async fn test_redis_store_data() {
         .arg(&weather_data.name)
         .query_async(&mut redis_conn)
         .await
-        .expect("Failed to delete test data from redis");
+        .expect("Failed to get test data from redis");
 
     let weather_data_from_redis: WeatherData = serde_json::from_str(&data_from_redis).unwrap();
+
+    assert_eq!(weather_data, weather_data_from_redis);
+
     let _ = Utility::delete_data_in_redis(&weather_data.name)
         .await
         .unwrap();
 
-    let _x: String = redis::cmd("DEL")
-        .arg(&weather_data.name)
-        .query_async(&mut redis_conn)
-        .await
-        .expect("Failed to delete test data from redis");
-
-    assert_eq!(weather_data, weather_data_from_redis);
 }
 
 #[async_test]
@@ -44,7 +41,8 @@ pub async fn test_redis_get_cached_weather_data() {
     // let client_redis = redis::Client::open("redis://backend-redis-1:6379/").unwrap();
     // let mut con: MultiplexedConnection = client_redis.get_multiplexed_async_connection().await.expect("RedisUtility: Error");
 
-    let test_data = WeatherData::default();
+    let mut test_data = WeatherData::default();
+    test_data.name = format!("Barcelona-{}", uuid::Uuid::new_v4());
     let json = serde_json::to_string(&test_data).unwrap();
 
     let _x: String = redis::cmd("SET")

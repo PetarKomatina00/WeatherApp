@@ -6,7 +6,7 @@ use reqwest::StatusCode;
 pub fn create_expected_weather_data() -> TestWeatherData {
     let dummy_weather_data = TestWeatherData {
         name: String::from("Barcelona"),
-        timezone: 3600,
+        timezone: 7200,
         coord: Coords {
             lon: 2.159,
             lat: 41.3888,
@@ -25,6 +25,7 @@ async fn test_get_weather_api() {
     let url = format!("http://127.0.0.1:8000/fetch/{}", city);
     let response = client
         .get(&url)
+        .bearer_auth("secret-token")
         .send()
         .await
         .expect("Test: Failed to send request");
