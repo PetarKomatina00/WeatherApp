@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-pgadmin
+spec:
+  selector:
+    matchLabels:
+      app: postgres-pgadmin
+  template:
+    metadata:
+      labels:
+        app: postgres-pgadmin
+    spec:
+      containers:
+      - name: postgres-pgadmin
+        image: dpage/pgadmin4:9.18
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PGADMIN_DEFAULT_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: pgadmin-secret
+              key: PGADMIN_DEFAULT_EMAIL
+        - name: PGADMIN_DEFAULT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: pgadmin-secret
+              key: PGADMIN_DEFAULT_PASSWORD
+        - name: PGADMIN_LISTEN_PORT
+          valueFrom:
+            secretKeyRef:
+              name: pgadmin-secret
+              key: PGADMIN_LISTEN_PORT
+        resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgadmin-external-service
+spec:
+  selector:
+    app: postgres-pgadmin
+  type: LoadBalancer
+
+  ports:
+  - port: 8080
+    targetPort: 8080
+    nodePort: 30000
