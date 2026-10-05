@@ -31,9 +31,17 @@ RUN cargo build --release
 
 FROM debian:bookworm-slim as production
 
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libssl3 \
+        libpq5 \
+        ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY --from=builder /app/backend/target/release/backend /app/backend
+COPY backend/Rocket.toml /app/Rocket.toml
 
 EXPOSE 8000
 
