@@ -1,18 +1,73 @@
-use std::env;
+use std::{env, sync::atomic::{AtomicUsize, Ordering}};
 
 // use crate::models::weather::WeatherData;
 
 use crate::redis_utility::{utility::Utility, weather_single_flight::WeatherSingleFlight};
+use redis::RedisError;
 use reqwest::StatusCode;
 use shared::WeatherData;
 
 pub struct WeatherRepository;
 
+static OPENWEATHER_CALLS: AtomicUsize = AtomicUsize::new(0);
+
 impl WeatherRepository {
     //Implementing single flight for redis. 1 Connection will call openweather api and the other X number of connections will wait for redis reading
 
-    pub async fn get_city_weather_by_name_sf(city: &str, single_flight: &WeatherSingleFlight){
 
+    //Attempt to fetch data from redis
+    pub async fn get_city_weather_by_name_sf(city: &str, single_flight: &WeatherSingleFlight) -> Result<WeatherData, String>{
+        //First normalize BARCELONA and Barcelona
+        let key_city = city.trim().to_ascii_lowercase();
+    
+        if let Some(weather_data) = Utility::get_cached_weather_data(&key_city).await{
+            print!("Cache HIT!");
+            return Ok(weather_data);
+        }
+        println!("Cache MISS for City {city}");
+
+        
+
+        //Gets Lock for a specific city
+        let city_lock = single_flight.get_lock(&key_city).await;
+        
+        //Only one request per city
+        let _city_guard = city_lock.lock().await;
+        
+        //When Request A finishes request B needs to again check redis.
+        if let Some(weather_data) = Utility::get_cached_weather_data(&key_city).await
+        {
+            println!("CACHE HIT AFTER WAIT: {city}");
+            return Ok(weather_data);
+        }
+
+        let weather_data = Self::fetch_data_weather_api(city).await;
+        
+        match weather_data{
+            Ok(weather_data) => {
+                println!("Storing data for {city}");
+
+                let result = Utility::store_data_in_redis(&key_city, &weather_data).await;
+
+                match result{
+                    Ok(_) => {
+                        Ok(weather_data)
+                    }
+                    Err(err) =>{
+                        println!("Redis Error: {:?}", err);
+                        return Err(err.to_string());
+                    }
+                }
+            }
+            Err(err) =>{
+                print!("Error with openweather API");
+                return Err(err);
+            }
+        }
+
+
+
+        
     }
 
 
@@ -32,7 +87,8 @@ impl WeatherRepository {
                 .await?;
 
             println!("Storing data in redis...");
-            Utility::store_data_in_redis(&weather_data).await;
+            let key_city = &city.trim().to_ascii_lowercase();
+            Utility::store_data_in_redis(key_city, &weather_data).await;
         }
 
         // 4. Return the data (Ok) or error (Err).
@@ -51,6 +107,9 @@ impl WeatherRepository {
             "http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units=metric",
             city, api_key
         );
+
+        let number_of_calls = OPENWEATHER_CALLS.fetch_add(1, Ordering::Relaxed) + 1;
+        println!("Openweather API CALL number {number_of_calls} for {city}");
         let response: reqwest::Response = reqwest::get(&url)
             .await
             .expect("WeatherRepository: Failed to get response from GET Request");

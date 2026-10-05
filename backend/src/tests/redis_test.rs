@@ -11,7 +11,7 @@ pub async fn test_redis_store_data() {
 
     let mut weather_data: WeatherData = WeatherData::default();
     weather_data.name = format!("Barcelona-{}", uuid::Uuid::new_v4());
-    Utility::store_data_in_redis(&weather_data).await;
+    Utility::store_data_in_redis(&weather_data.name, &weather_data).await;
 
     //let weather_data_from_redis = utility::get_cached_weather_data(&weather_data.name).await.unwrap();
 

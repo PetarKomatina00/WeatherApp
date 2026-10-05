@@ -1,8 +1,8 @@
-use std::env;
+use std::{env, time::Instant};
 
 use deadpool_redis::{Config, Pool, Runtime};
 use lazy_static::lazy_static;
-use redis::AsyncCommands;
+use redis::{AsyncCommands, RedisError};
 //use crate::models::weather::WeatherData;
 use shared::WeatherData;
 pub struct Utility;
@@ -10,7 +10,7 @@ pub struct Utility;
 lazy_static! {
     pub static ref REDIS_POOL: Pool = {
         dotenv::dotenv().ok();
-        let redis_url = env::var("REDIS_URL").expect("Cannot get redis url");
+        let redis_url = env::var("REDIS_URL_DEV").expect("Cannot get redis url");
         let cfg: Config = Config::from_url(redis_url);
         let pool_con = cfg
             .create_pool(Some(Runtime::Tokio1))
@@ -25,10 +25,19 @@ impl Utility {
         //let mut redis_conn = redis_test::REDIS_POOL.get().await.expect("Failed to get redis connection");
         //let client_redis = redis::Client::open(REDIS_POOL).unwrap();
 
+        let start = Instant::now();
+        let pool_start = Instant::now();
+
         let mut con = REDIS_POOL.get().await.expect("Failed to get redis pool");
+
+        print!("Pool gotten at: {:?}", pool_start.elapsed());
         //let mut con: MultiplexedConnection = client_redis.get_multiplexed_async_connection().await.expect("RedisUtility: Error");
 
+        let redis_start = Instant::now();
         let cached_json: Option<String> = con.get(key).await.unwrap();
+
+        println!("Result get from redis: {:?}", redis_start.elapsed());
+        println!("Total Redis operation: {:?}", start.elapsed());
 
         println!("{:?}", cached_json);
         println!("Get cached weather data ended");
@@ -44,7 +53,7 @@ impl Utility {
         }
     }
 
-    pub async fn store_data_in_redis(weather_data: &WeatherData) {
+    pub async fn store_data_in_redis(key: &str, weather_data: &WeatherData) -> Result<redis::RedisResult<()>, RedisError>{
         println!("Storing data in redis started...");
 
         let mut con = REDIS_POOL
@@ -54,16 +63,22 @@ impl Utility {
         // let client_redis = redis::Client::open("redis://backend-redis-1:6379/").unwrap();
         // let mut con: MultiplexedConnection = client_redis.get_multiplexed_async_connection().await.expect("RedisUtility: Error connection to redis");
 
-        let key = format!("{}", weather_data.name);
-
         let json_data =
             serde_json::to_string(&weather_data).expect("Utility: Failed to convert to string");
         let result: redis::RedisResult<()> = con.set_ex(&key, json_data, 600).await;
 
         println!("Storing data in ended...");
         match result {
-            Ok(_) => println!("Weather data successfully stored in redis"),
-            Err(err) => println!("Error storing data in Redis: {}", err),
+            Ok(res) => {
+                println!("Weather data successfully stored in redis");
+                return Ok(result);
+                
+            }
+
+            Err(err) => {
+                println!("Error storing data in Redis: {}", err);
+                return Err(err);
+            }
         }
     }
     pub async fn delete_data_in_redis(key: &str) -> Result<(), String> {
