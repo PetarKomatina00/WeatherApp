@@ -7,9 +7,9 @@ pub struct ButtonContent {
     pub content: String,
 }
 
-pub async fn fetch_weather_data(data: &ButtonContent) -> Result<Response, FetchError> {
+pub async fn fetch_weather_data(data: &ButtonContent, backend_url: String) -> Result<Response, FetchError> {
     println!("Fetchin data started...");
-    let response = Request::get(&format!("http://127.0.0.1:8000/fetch/{}", data.content))
+    let response = Request::get(&format!("{}/fetch/{}", backend_url, data.content))
         .credentials(reqwasm::http::RequestCredentials::Include)
         .send()
         .await

@@ -6,10 +6,10 @@ use shared::{ClaudeResponse, WeatherData};
 use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
-use yew::{Callback, Event, Html, InputEvent, KeyboardEvent, MouseEvent, Properties, SubmitEvent, TargetCast, function_component, html, use_effect_with, use_mut_ref, use_state};
+use yew::{Callback, Event, Html, InputEvent, KeyboardEvent, MouseEvent, Properties, SubmitEvent, TargetCast, function_component, html, use_context, use_effect_with, use_mut_ref, use_state};
 use gloo_net::http::Request;
 use yew_notifications::{Notification, NotificationType, use_notification};
-use crate::{api::chat::send_chat_message, assets::markdown::markdown_to_html};
+use crate::{api::chat::send_chat_message, assets::{config::AppConfig, markdown::markdown_to_html}};
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
@@ -17,7 +17,8 @@ pub struct Props {
 }
 #[function_component(ChatWindow)]
 pub fn chat_window(props: &Props) -> Html{
-
+    let config = use_context::<AppConfig>().expect("Could not load config.json");
+    let backend_url = config.backend_url;
     let question = use_state(String::new);
     let response = use_state(|| ClaudeResponse::default());
     let is_claude_loading = use_state(|| false);
@@ -59,7 +60,7 @@ pub fn chat_window(props: &Props) -> Html{
         let weather_data = props.weather_data.clone();
         let notifications_manager = notifications_manager.clone();
         let use_mcp_weather = use_mcp_weather.clone();
-        
+        let backend_url = backend_url.clone();
         Callback::from(move |e: SubmitEvent| {
             e.prevent_default();
             let question = question.clone();
@@ -68,12 +69,13 @@ pub fn chat_window(props: &Props) -> Html{
             let weather_data = weather_data.clone();
             let notifications_manager = notifications_manager.clone();
             let use_mcp_weather = use_mcp_weather.clone();
+            let backend_url = backend_url.clone();
 
             is_claude_loading.set(true);
             spawn_local(async move {
                 notifications_manager.spawn(Notification::new(NotificationType::Info, String::from("Zahtev Claude-u"), String::from("Uspesno poslat"), Duration::seconds(5)));
                 let question_string = (*question).clone();
-                let result = send_chat_message(&question_string, (*use_mcp_weather).clone(), weather_data).await;
+                let result = send_chat_message(&question_string, (*use_mcp_weather).clone(), weather_data, backend_url).await;
 
                 match result{
                     Ok(claude_response) => {

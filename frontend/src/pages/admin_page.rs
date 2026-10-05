@@ -6,10 +6,14 @@ use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use yew_router::hooks::use_navigator;
 
-use crate::{assets::utility::Route, components::spinner::Spinner, models::ApiLogs};
+use crate::{assets::{config::AppConfig, utility::Route}, components::spinner::Spinner, models::ApiLogs};
 
 #[function_component(AdminPage)]
 pub fn admin_page() -> Html {
+
+    let config = use_context::<AppConfig>().expect("Could not load config.json");
+    let backend_url = config.backend_url;
+
     let navigator = use_navigator().unwrap();
     let api_logs: UseStateHandle<Vec<ApiLogs>> = use_state(|| Vec::new());
 
@@ -32,7 +36,7 @@ pub fn admin_page() -> Html {
             let api_logs_handle = api_logs_handle.clone();
             let is_loading_handle = is_loading_handle.clone();
             is_loading_handle.set(true);
-            let url = format!("http://127.0.0.1:8000/api/logs?limit=100");
+            let url = format!("{}/api/logs?limit=100", backend_url);
             let response = Request::get(&url)
                 .header("Accept", "applicaton/json")
                 .send()

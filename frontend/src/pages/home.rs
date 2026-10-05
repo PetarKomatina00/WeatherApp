@@ -1,4 +1,5 @@
 
+use crate::assets::config::AppConfig;
 use crate::assets::utility::Route;
 use crate::components::chat::chat_window::ChatWindow;
 use crate::components::front_image::FrontImage;
@@ -19,6 +20,10 @@ use yew_router::hooks::use_navigator;
 
 #[function_component(Home)]
 pub fn home() -> Html {
+
+    //fetch_weather_data
+    let config = use_context::<AppConfig>().expect("Could not load config.json");
+    let backend_url = config.backend_url;
     let navigator = use_navigator().unwrap();
     let input_value = use_state(|| String::new());
     let weather_data: UseStateHandle<Option<WeatherData>> = use_state(|| None::<WeatherData>);
@@ -31,10 +36,11 @@ pub fn home() -> Html {
     let user_profile_handle = user_profile.clone();
     let is_admin_logged = use_state(|| false);
     let is_loading = use_state(|| false);
-
+    let backend_url_copy = backend_url.clone();
     use_effect_with((), move |_| {
+        let backend_url = backend_url_copy.clone();
         spawn_local(async move {
-            let url = format!("http://127.0.0.1:8000/whoami");
+            let url = format!("{}/whoami",backend_url);
             let response = Request::get(&url)
                 .header("Accept", "application/json")
                 .credentials(web_sys::RequestCredentials::Include)
@@ -57,11 +63,13 @@ pub fn home() -> Html {
     });
 
     let is_admin_logged_handle = is_admin_logged.clone();
+    let backend_url_copy = backend_url.clone();
     use_effect_with((*is_logged_in).clone(), move |_| {
         let is_admin_logged_handle = is_admin_logged_handle.clone();
+        let backend_url = backend_url_copy.clone();
         spawn_local(async move {
             let is_admin_logged_handle = is_admin_logged_handle.clone();
-            let url = format!("http://127.0.0.1:8000/get/user/claim");
+            let url = format!("{}/get/user/claim", backend_url);
             let response = Request::get(&url)
                 .header("Accept", "application/json")
                 .credentials(web_sys::RequestCredentials::Include)
@@ -71,7 +79,7 @@ pub fn home() -> Html {
             match response {
                 Ok(r) if r.ok() => is_admin_logged_handle.set(true),
                 _ => {
-                    log!("Error2");
+                    log!("Admin is not logged in");
                 }
             }
         });
@@ -80,21 +88,24 @@ pub fn home() -> Html {
 
     let input_value_handle = input_value.clone();
     let is_loading_handle = is_loading.clone();
+    let backend_url = backend_url.clone();
     let on_submit: Callback<ButtonContent> = {
-        web_sys::console::log_1(&format!("Prikaz").into());
+        //web_sys::console::log_1(&format!("Prikaz").into());
         let weather_data_handle = weather_data.clone(); // keep one handle in the closure’s env
         let is_login_modal_open_handle = is_login_modal_open.clone();
         let is_loading_handle = is_loading_handle.clone();
         let input_value_handle = input_value_handle.clone();
-        Callback::from(move |mut btn: ButtonContent| {
+        let backend_url = backend_url.clone();
+        Callback::from(move |btn: ButtonContent| {
             let state = weather_data_handle.clone(); // clone for this invocation
             let is_login_modal_open = is_login_modal_open_handle.clone();
             let is_loading_handle = is_loading_handle.clone();
             let input_value_handle = input_value_handle.clone();
+            let backend_url = backend_url.clone();
             spawn_local(async move {
                 is_loading_handle.set(true);
                 println!("Content: {}", btn.content);
-                match fetch_weather_data(&btn).await {
+                match fetch_weather_data(&btn, backend_url).await {
                     Ok(resp) => {
                         //log!(&format!("Response: {:?}", resp));
                         input_value_handle.set(btn.content);

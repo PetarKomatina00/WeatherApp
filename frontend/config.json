@@ -1,0 +1,5 @@
+
+{
+    "_comment" : "Change backend_url to http://127.0.0.1:8000/backend for development and local purposes or /backend for production",
+    "backend_url" : "http://127.0.0.1:8000/backend"
+}
