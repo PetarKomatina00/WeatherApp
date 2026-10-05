@@ -30,6 +30,9 @@ impl WeatherRepository {
         // 4. Return the data (Ok) or error (Err).
 
         //Ok(weather_data)
+
+
+
         Ok(weather_data)
     }
     async fn fetch_data_weather_api(city: &str) -> Result<WeatherData, String> {

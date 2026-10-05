@@ -76,10 +76,13 @@ pub async fn get_access_token(_decoded_jwe: &str) -> Result<String, String> {
     let client_secret = env::var("CLIENT_SECRET").expect("Cannot get client secret");
     let audience = env::var("AUDIENCE").expect("Cannot get audience");
 
+    let BACKEND_KUBER_URL: String = env::var("BACKEND_KUBER_URL").expect("Could not get backend prod url");
     let client = reqwest::Client::builder()
         .cookie_store(true)
         .build()
         .expect("Could not create client to send HTTP");
+
+    let backend_dev_url = env::var("BACKEND_DEV_URL").expect("Could not get backend dev url");
 
     let mut headers = reqwest::header::HeaderMap::new();
     headers.insert(
@@ -89,7 +92,7 @@ pub async fn get_access_token(_decoded_jwe: &str) -> Result<String, String> {
             .expect("Could not parse http"),
     );
 
-    let redirect_uri = format!("http://127.0.0.1:8000/auth0/callback");
+    let redirect_uri = format!("{}/auth0/callback", backend_dev_url);
     let body = TokenRequest {
         grant_type: "client_credentials",
         client_id: client_id.as_str(),

@@ -10,6 +10,8 @@ pub fn cors() -> Result<rocket_cors::Cors, Box<dyn Error>> {
         "http://localhost:8001",
         "https://127.0.0.1:8001",
         "https://localhost:8001",
+        "http://weatherapp.test",
+        "https://weatherapp.test",
     ]);
     let cors: rocket_cors::Cors = rocket_cors::CorsOptions {
         allowed_origins,

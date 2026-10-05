@@ -1,6 +1,9 @@
+use std::env;
+
 use super::models::Coords;
 use crate::tests::models::TestWeatherData;
 
+use dotenv::var;
 #[allow(unused_imports)]
 use reqwest::StatusCode;
 pub fn create_expected_weather_data() -> TestWeatherData {
@@ -22,7 +25,10 @@ async fn test_get_weather_api() {
     let city = String::from("Barcelona");
     let client = reqwest::Client::new();
 
-    let url = format!("http://127.0.0.1:8000/fetch/{}", city);
+    let backend_kuber_url = env::var("BACKEND_KUBER_URL").expect("Could not load backend kuber url");
+    let backend_dev_url = env::var("BACKEND_DEV_URL").expect("Could not load backend kuber url");
+    
+    let url = format!("{}/{}", backend_kuber_url,city);
     let response = client
         .get(&url)
         .bearer_auth("secret-token")

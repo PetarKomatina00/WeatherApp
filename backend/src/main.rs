@@ -1,4 +1,4 @@
-use std::env;
+use std::{env, sync::atomic::AtomicUsize};
 
 use diesel::{Connection, PgConnection};
 use repositories::api_logs_repository;
@@ -9,7 +9,7 @@ use utoipa::OpenApi;
 
 use utoipa_swagger_ui::SwaggerUi;
 
-use crate::repositories::claude_repository::ClaudeRepository;
+use crate::{mock::fake_endpoint, repositories::claude_repository::ClaudeRepository};
 #[macro_use]
 extern crate rocket;
 
@@ -20,6 +20,7 @@ pub mod models;
 pub mod redis_utility;
 pub mod repositories;
 pub mod rocket_routes;
+pub mod mock;
 mod schema;
 pub mod swagger;
 pub mod tests;
@@ -30,7 +31,7 @@ pub struct DbConnection(PgConnection);
 
 pub fn establish_connection() -> PgConnection {
     dotenv::dotenv().ok();
-    let database_url = env::var("POSTGRES_URL").expect("Database url must be set");
+    let database_url = env::var("DATABSE_URL").expect("Database url must be set");
     PgConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("error connection to {}", database_url))
 }
@@ -43,8 +44,11 @@ async fn main() -> Result<(), rocket::Error> {
         .attach(OAuth2::<auth0_routes::auth0::Auth0>::fairing("auth0"))
         .attach(DbConnection::fairing())
         .attach(api_logs_repository::ApiLogger)
+        .manage(mock::fake_endpoint::FakeWeatherState {
+            calls: AtomicUsize::new(0)
+        })
         .manage(ClaudeRepository::new())
-        .mount("/", routes![
+        .mount("/backend", routes![
             rocket_routes::weather_route::get_weather_api,
             api_logs_route::get_api_logs,
             jwt::jwt_routes::get_user_claim, 
@@ -53,11 +57,11 @@ async fn main() -> Result<(), rocket::Error> {
             ])
         .mount(
             "/",
-            SwaggerUi::new("/swagger-ui/<_..>").url("/api-docs/openapi.json", ApiDoc::openapi()),
+            SwaggerUi::new("/swagger-ui/<_..>").url("/api-docs/openapi.json", ApiDoc::openapi())
         )
-        
+        .mount("/", routes![fake_endpoint::get_fake_weather_data, fake_endpoint::get_number_of_calls, fake_endpoint::reset_state_counter])
         .mount(
-            "/auth0",
+            "/backend/auth0",
             routes![
                 auth0_routes::auth0::login,
                 auth0_routes::auth0::logout,
@@ -70,7 +74,7 @@ async fn main() -> Result<(), rocket::Error> {
 
     println!("Starting rocket");
     for route in rocket.routes(){
-        println!("{} {}", route.method, route.uri);
+        println!("{} {} {:?}", route.method, route.uri, route.name);
     }
     rocket.launch().await?;
     Ok(())
