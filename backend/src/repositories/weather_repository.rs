@@ -35,7 +35,7 @@ impl WeatherRepository {
 
         Ok(weather_data)
     }
-    async fn fetch_data_weather_api(city: &str) -> Result<WeatherData, String> {
+    pub async fn fetch_data_weather_api(city: &str) -> Result<WeatherData, String> {
         println!("Fetching data started...");
         dotenv::dotenv().ok();
 

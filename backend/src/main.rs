@@ -21,6 +21,7 @@ pub mod redis_utility;
 pub mod repositories;
 pub mod rocket_routes;
 pub mod mock;
+pub mod benchmark;
 mod schema;
 pub mod swagger;
 pub mod tests;
@@ -59,7 +60,7 @@ async fn main() -> Result<(), rocket::Error> {
             "/",
             SwaggerUi::new("/swagger-ui/<_..>").url("/api-docs/openapi.json", ApiDoc::openapi())
         )
-        .mount("/", routes![fake_endpoint::get_fake_weather_data, fake_endpoint::get_number_of_calls, fake_endpoint::reset_state_counter])
+        .mount("/", routes![fake_endpoint::get_fake_weather_data, fake_endpoint::get_number_of_calls, fake_endpoint::reset_state_counter, benchmark::openweather_benchmark::benchmark_weather])
         .mount(
             "/backend/auth0",
             routes![
