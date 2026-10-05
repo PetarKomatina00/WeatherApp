@@ -9,7 +9,7 @@ use utoipa::OpenApi;
 
 use utoipa_swagger_ui::SwaggerUi;
 
-use crate::{mock::fake_endpoint, repositories::claude_repository::ClaudeRepository};
+use crate::{mock::fake_endpoint, redis_utility::weather_single_flight::WeatherSingleFlight, repositories::claude_repository::ClaudeRepository};
 #[macro_use]
 extern crate rocket;
 
@@ -48,6 +48,7 @@ async fn main() -> Result<(), rocket::Error> {
         .manage(mock::fake_endpoint::FakeWeatherState {
             calls: AtomicUsize::new(0)
         })
+        .manage(WeatherSingleFlight::new())
         .manage(ClaudeRepository::new())
         .mount("/backend", routes![
             rocket_routes::weather_route::get_weather_api,

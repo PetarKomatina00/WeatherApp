@@ -2,13 +2,21 @@ use std::env;
 
 // use crate::models::weather::WeatherData;
 
-use crate::redis_utility::utility::Utility;
+use crate::redis_utility::{utility::Utility, weather_single_flight::WeatherSingleFlight};
 use reqwest::StatusCode;
 use shared::WeatherData;
 
 pub struct WeatherRepository;
 
 impl WeatherRepository {
+    //Implementing single flight for redis. 1 Connection will call openweather api and the other X number of connections will wait for redis reading
+
+    pub async fn get_city_weather_by_name_sf(city: &str, single_flight: &WeatherSingleFlight){
+
+    }
+
+
+    // This function works and can be tested with cargo test
     pub async fn get_city_weather_by_name(city: &String) -> Result<WeatherData, String> {
         // 1. Attempt to fetch data from Redis.
 
@@ -30,8 +38,6 @@ impl WeatherRepository {
         // 4. Return the data (Ok) or error (Err).
 
         //Ok(weather_data)
-
-
 
         Ok(weather_data)
     }
