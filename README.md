@@ -4,6 +4,8 @@ A full stack weather and camping application built primarily in **Rust**, with *
 
 The project is intentionally focused on going deeper into backend, specifically in concurrency, caching, distributed system concepts and infrastructure rather than continuously adding unrelated features.
 
+The objective is not merely to add features, but to understand how the application's behavior changes as concurrency and deployment complexity increase.
+
 ---
 
 ## Engineering Highlights from Most valuable to Least valuable (My opinion)
@@ -65,12 +67,19 @@ Illustration:
 
 The first approach was using a Mutex on every city. The problem with this approach is when the leader finishes, every other follower will lock the mutex, get the data from redis, unlock the mutex. and so on and so fort.
 
-Illustration:
+Illustration: 
 
-Request A ──> acquires Mutex ──> OpenWeather ──> Redis SET ──> unlock
-Request B ──> waits ───────────> acquires Mutex ──> Redis GET ──> unlock
-Request C ──> waits ─────────────────────────────> acquires Mutex ──> Redis GET ──> unlock
-Request D ──> waits ───────────────────────────────────────────────> acquires Mutex ──> Redis GET ──> unlock
+Leader:
+[ Mutex ] -> [ OpenWeather ] -> [ Redis SET ] -> [ unlock ]
+
+Follower 1:
+[ wait ] -> [ Mutex ] -> [ Redis GET ] -> [ unlock ]
+
+Follower 2:
+[ wait ---------------- ] -> [ Mutex ] -> [ Redis GET ] -> [ unlock ]
+
+Follower 3:
+[ wait -------------------------------- ] -> [ Mutex ] -> [ Redis GET ] -> [ unlock ]
 
 This adds an additional overhead.
 
@@ -441,6 +450,8 @@ Tokio Notify single-flight
      |
      v
 Controlled mock benchmark
+     |
+     v
+Distributed redis locking (Yet to be implemented)
 ```
 
-The objective is not merely to add features, but to understand how the application's behavior changes as concurrency and deployment complexity increase.
