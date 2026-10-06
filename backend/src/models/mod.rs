@@ -110,8 +110,3 @@ pub struct ClaudeServiceRequest {
     pub use_mcp_weather: bool,
     pub weather_data: Option<WeatherData>
 }
-
-pub struct Flight{
-    notify: Notify,
-    completed: bool
-}

@@ -42,7 +42,7 @@ impl Fairing for ApiLogger{
         }
     }
     async fn on_response<'r>(&self, request: &'r Request<'_>, response: &mut Response<'r>) {
-        println!("API logged started");
+        //println!("API logged started");
         let method = request.method().to_string();
         let path = request.uri().to_string();
         let status = response.status().code.to_string();
@@ -52,11 +52,11 @@ impl Fairing for ApiLogger{
 
 
         let mut location: Option<String> = Some(String::from("/"));
-        println!("Gledamo /fetch");
+        //println!("Gledamo /fetch");
         if request.uri().path().starts_with("/fetch/"){
-            println!("Ok usli smo");
+            //println!("Ok usli smo");
             if let Some(city) = request.uri().path().segments().nth(1){
-                println!("ide gas");
+                //println!("ide gas");
                 location = Some(city.to_string());
             }
             else{
@@ -80,7 +80,7 @@ impl Fairing for ApiLogger{
             .local_cache(|| String::from("")).into();
 
         if user_id.is_empty(){
-            println!("user_id is empty");
+            //println!("user_id is empty");
             return;
         }
         println!("{} {} {} {} {}", method, path, status, function_name, user_id);

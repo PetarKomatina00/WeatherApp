@@ -55,7 +55,7 @@ async fn main() -> Result<(), rocket::Error> {
             api_logs_route::get_api_logs,
             jwt::jwt_routes::get_user_claim, 
             jwt::jwt_routes::who_am_i,
-            rocket_routes::claude_route::chat
+            rocket_routes::claude_route::chat,
             ])
         .mount(
             "/",

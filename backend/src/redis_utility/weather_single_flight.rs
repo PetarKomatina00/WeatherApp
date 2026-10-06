@@ -11,7 +11,7 @@ use tokio::sync::Notify;
 //When Leader finishes, awake all other processes to call redis.
 //Again, in the first approach proccess B calls redis(gets lock, calls redis, release lock), then process C...
 //Before the first approach for 60 calls benchmark was 2.4seconds.
-//After the first approach for 60 calls benchmark was 380miliseconds. LETS GO FASTER.
+//After the first approach for 60 calls benchmark was 360miliseconds. LETS GO FASTER.
 /* To be precise
 60 responses
 Success rate: 100.00%
@@ -21,7 +21,15 @@ Fastest:      262.6691 ms
 Average:      310.4185 ms
 Requests/sec: 166.7812
  */
-//After the second approach for 60 calls benchmark was ___
+//After the second approach for 60 calls benchmark was 270ms
+/*
+Success rate: 100.00%
+  Total:        270.5732 ms
+  Slowest:      267.9467 ms
+  Fastest:      244.7302 ms
+  Average:      256.7136 ms
+  Requests/sec: 221.7515
+*/
 pub struct WeatherSingleFlight{
     flights: Mutex<HashMap<String, Arc<Flight>>>,
     pub num_leaders: Arc<AtomicU32>,

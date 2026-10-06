@@ -6,6 +6,7 @@ use crate::redis_utility::{utility::Utility, weather_single_flight::{FlightRole,
 use redis::RedisError;
 use reqwest::StatusCode;
 use shared::WeatherData;
+use crate::benchmark;
 
 pub struct WeatherRepository;
 
@@ -21,10 +22,10 @@ impl WeatherRepository {
         let key_city = city.trim().to_ascii_lowercase();
     
         if let Some(weather_data) = Utility::get_cached_weather_data(&key_city).await{
-            print!("Cache HIT!");
+            //print!("Cache HIT!");
             return Ok(weather_data);
         }
-        println!("Cache MISS for City {city}");
+        //println!("Cache MISS for City {city}");
 
         
         match single_flight.join(&key_city).await{
@@ -40,7 +41,11 @@ impl WeatherRepository {
                 }
                 println!("Hello i am Leader {key_city}");
 
-                let weather_data = Self::fetch_data_weather_api(&key_city).await;
+                //let weather_data = Self::fetch_data_weather_api(&key_city).await;
+
+                //Testing purposes only. Called to test local mock openweatherapi that sleep 2.4seconds
+                //command use: oha -n 10000 -c 10000 --no-tui "/backend/fetch/<city>"
+                let weather_data = benchmark::openweather_benchmark::fetch_data_weather_api_mock(&key_city).await;
 
                 match weather_data{
                     Ok(weather_data) => {
@@ -67,10 +72,10 @@ impl WeatherRepository {
                 }
             }
             FlightRole::Follower(flight) => {
-                println!("I am a follower {:?}", single_flight.num_followers);
+                //println!("I am a follower {:?}", single_flight.num_followers);
                 flight.wait_for_leader().await;
                 single_flight.num_followers.fetch_sub(1, std::sync::atomic::Ordering::Relaxed);
-                println!("I am no longer a follower");
+                //println!("I am no longer a follower");
 
                 if let Some(weather_data) = Utility::get_cached_weather_data(&key_city).await{
                     return Ok(weather_data);
@@ -81,7 +86,7 @@ impl WeatherRepository {
         //When Request A finishes request B needs to again check redis.
         if let Some(weather_data) = Utility::get_cached_weather_data(&key_city).await
         {
-            println!("CACHE HIT AFTER WAIT: {city}");
+            //println!("CACHE HIT AFTER WAIT: {city}");
             return Ok(weather_data);
         }
 
@@ -89,7 +94,7 @@ impl WeatherRepository {
         
         match weather_data{
             Ok(weather_data) => {
-                println!("Storing data for {city}");
+                //println!("Storing data for {city}");
 
                 let result = Utility::store_data_in_redis(&key_city, &weather_data).await;
 
@@ -121,16 +126,16 @@ impl WeatherRepository {
 
         let mut weather_data: WeatherData = WeatherData::default();
         if let Some(weather_data) = Utility::get_cached_weather_data(&city).await {
-            println!("Data from redis cache: {:?}", weather_data);
+            //println!("Data from redis cache: {:?}", weather_data);
             //return Ok(String::from("Data from cache is stored!"));
             //todo!("Data is fetched from redis...Procceed");
             return Ok(weather_data);
         } else {
-            println!("Fetching data...");
+            //println!("Fetching data...");
             weather_data = Self::fetch_data_weather_api(&city)
                 .await?;
 
-            println!("Storing data in redis...");
+            //println!("Storing data in redis...");
             let key_city = &city.trim().to_ascii_lowercase();
             let _x = Utility::store_data_in_redis(key_city, &weather_data).await;
         }
