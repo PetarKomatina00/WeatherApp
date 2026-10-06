@@ -21,7 +21,7 @@ uuid = {version = "1.17.0",features = ["serde", "v4"]}
 shared = { path = "../shared"}
 utoipa-swagger-ui = { version = "9.0.1", features = ["rocket", "reqwest"]}
 percent-encoding = "2.1"
-
+tokio = { version = "1", features = ["sync"] }
 
 rocket_oauth2 = "0.5.0"
 jsonwebtoken = "9.3.1"

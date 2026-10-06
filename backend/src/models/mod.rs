@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 use shared::WeatherData;
 use uuid::Uuid;
 use crate::schema::*;
+use tokio::sync::Notify;
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UserInfo {
     pub sub: String,
@@ -108,4 +110,8 @@ pub struct ClaudeServiceRequest {
     pub use_mcp_weather: bool,
     pub weather_data: Option<WeatherData>
 }
-    
+
+pub struct Flight{
+    notify: Notify,
+    completed: bool
+}

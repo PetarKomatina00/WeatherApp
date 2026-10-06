@@ -30,17 +30,17 @@ impl Utility {
 
         let mut con = REDIS_POOL.get().await.expect("Failed to get redis pool");
 
-        print!("Pool gotten at: {:?}", pool_start.elapsed());
+        //print!("Pool gotten at: {:?}", pool_start.elapsed());
         //let mut con: MultiplexedConnection = client_redis.get_multiplexed_async_connection().await.expect("RedisUtility: Error");
 
         let redis_start = Instant::now();
         let cached_json: Option<String> = con.get(key).await.unwrap();
 
-        println!("Result get from redis: {:?}", redis_start.elapsed());
-        println!("Total Redis operation: {:?}", start.elapsed());
+        //println!("Result get from redis: {:?}", redis_start.elapsed());
+        //println!("Total Redis operation: {:?}", start.elapsed());
 
-        println!("{:?}", cached_json);
-        println!("Get cached weather data ended");
+        //println!("{:?}", cached_json);
+        //println!("Get cached weather data ended");
 
         match cached_json {
             None => return None,

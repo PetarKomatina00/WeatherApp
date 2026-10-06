@@ -2,7 +2,7 @@ use std::{env, sync::atomic::{AtomicUsize, Ordering}};
 
 // use crate::models::weather::WeatherData;
 
-use crate::redis_utility::{utility::Utility, weather_single_flight::WeatherSingleFlight};
+use crate::redis_utility::{utility::Utility, weather_single_flight::{FlightRole, WeatherSingleFlight}};
 use redis::RedisError;
 use reqwest::StatusCode;
 use shared::WeatherData;
@@ -27,12 +27,56 @@ impl WeatherRepository {
         println!("Cache MISS for City {city}");
 
         
+        match single_flight.join(&key_city).await{
+            FlightRole::Leader(flight) => {
+                //Double checking redis for race condition
+                if let Some(weather_data) = Utility::get_cached_weather_data(&key_city).await
+                {
+                    flight.complete_and_notify_followers();
+                    single_flight.remove_flight_from_hashmap(&key_city, &flight).await;
 
-        //Gets Lock for a specific city
-        let city_lock = single_flight.get_lock(&key_city).await;
-        
-        //Only one request per city
-        let _city_guard = city_lock.lock().await;
+                    return Ok(weather_data);
+
+                }
+                println!("Hello i am Leader {key_city}");
+
+                let weather_data = Self::fetch_data_weather_api(&key_city).await;
+
+                match weather_data{
+                    Ok(weather_data) => {
+                        let redis_result = Utility::store_data_in_redis(&key_city, &weather_data).await;
+
+                        flight.complete_and_notify_followers();
+
+                        single_flight.remove_flight_from_hashmap(&key_city, &flight).await;
+
+                        println!("Goodbye no longer leader {key_city}");
+                        match redis_result {
+                            Ok(_) => return Ok(weather_data),
+                            Err(err) => return Err(err.to_string())
+                        }
+
+                    }
+                    Err(err) => {
+                        flight.complete_and_notify_followers();
+
+                        single_flight.remove_flight_from_hashmap(&key_city, &flight).await;
+
+                        return Err(err);
+                    }
+                }
+            }
+            FlightRole::Follower(flight) => {
+                println!("I am a follower {:?}", single_flight.num_followers);
+                flight.wait_for_leader().await;
+                single_flight.num_followers.fetch_sub(1, std::sync::atomic::Ordering::Relaxed);
+                println!("I am no longer a follower");
+
+                if let Some(weather_data) = Utility::get_cached_weather_data(&key_city).await{
+                    return Ok(weather_data);
+                }
+            }
+        }
         
         //When Request A finishes request B needs to again check redis.
         if let Some(weather_data) = Utility::get_cached_weather_data(&key_city).await
@@ -88,7 +132,7 @@ impl WeatherRepository {
 
             println!("Storing data in redis...");
             let key_city = &city.trim().to_ascii_lowercase();
-            Utility::store_data_in_redis(key_city, &weather_data).await;
+            let _x = Utility::store_data_in_redis(key_city, &weather_data).await;
         }
 
         // 4. Return the data (Ok) or error (Err).
