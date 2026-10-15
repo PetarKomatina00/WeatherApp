@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-claude
+spec:
+  selector:
+    matchLabels:
+      app: python-claude
+  template:
+    metadata:
+      labels:
+        app: python-claude
+    spec:
+      containers:
+      - name: python-claude
+        image: weatherapp-python_claude:latest
+        imagePullPolicy: Never
+
+        envFrom:
+          - secretRef:
+              name: python-claude-secret
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+        ports:
+        - containerPort: 8002
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: python-claude-service
+spec:
+  selector:
+    app: python-claude
+  ports:
+  - port: 8002
+    targetPort: 8002
+

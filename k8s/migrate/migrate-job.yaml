@@ -19,7 +19,7 @@ spec:
         env: 
           - name: DATABASE_URL
             valueFrom:
-            secretKeyRef:
-              name: postgres-secret
-              key: DATABASE_URL
+              secretKeyRef:
+                name: postgres-secret
+                key: DATABASE_URL
       restartPolicy: Never
